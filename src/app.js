@@ -4,6 +4,7 @@ import fs from "fs";
 import http from "http"
 import https from "https"
 import adminInfo from "../admin-details.js";
+import { Server } from "socket.io"
 
 const privateKey = fs.readFileSync('keys/olliepugh_com.key', 'utf8');
 const certificate = fs.readFileSync('keys/olliepugh_com.crt', 'utf8');
@@ -37,12 +38,17 @@ app.use((req, res, next) => {
     res.set("WWW-Authenticate", 'Basic realm="401"');
     res.status(401).send("Authentication required.");
 });
+
 app.use(express.static("src/admin"));
 
 streamSetup(app)
 
 const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
+const io = new Server(httpsServer);
+io.on("connection", () => {
+    console.log("someone connected")
+})
 
 httpServer.listen(8080);
 httpsServer.listen(8443);

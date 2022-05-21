@@ -18,10 +18,7 @@ html, body {
     margin-top: 0;
 }
 
-@font-face {
-    font-family: 'Montserrat'; /*a name to be used later*/
-    src: url('Montserrat-Black.ttf'); /*URL to font*/
-}
+
 
 p, h1, h2, h3, h4, h5, h6 {
     font-family: 'Montserrat'; /*a name to be used later*/
