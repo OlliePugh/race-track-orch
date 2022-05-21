@@ -1,8 +1,15 @@
+:root {
+    --primary1: #E45826;
+    --background: #1B1A17;
+    --accent1: #E6D5B8;
+    --accent2: #F0A500;
+}
+
+
 @font-face {
     font-family: 'Montserrat'; /*a name to be used later*/
     src: url('Montserrat-Black.ttf'); /*URL to font*/
 }
-
 
 .slow-transition {
     transition: 200ms;

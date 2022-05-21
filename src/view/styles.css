@@ -1,11 +1,5 @@
-:root {
-    --primary1: #E45826;
-    --background: #1B1A17;
-    --accent1: #E6D5B8;
-    --accent2: #F0A500;
-}
-
-html, body {
+html,
+body {
     height: 100%;
     margin: 0;
     background-color: var(--background);
@@ -14,14 +8,19 @@ html, body {
 #title {
     font-family: 'Montserrat';
     color: var(--primary1);
-    margin-left: 10px;
+    margin-left: -15px;
     margin-top: 0;
 }
 
-
-
-p, h1, h2, h3, h4, h5, h6 {
-    font-family: 'Montserrat'; /*a name to be used later*/
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Montserrat';
+    /*a name to be used later*/
 }
 
 #wrapper {
@@ -33,7 +32,7 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 #join-button {
-    display:block;
+    display: block;
     margin: auto;
     border: white solid 2px;
     background-color: var(--accent2);
@@ -42,4 +41,51 @@ p, h1, h2, h3, h4, h5, h6 {
 
 #join-button:hover {
     border-color: var(--primary1);
+    cursor: pointer;
+}
+
+#socials-wrapper {
+    top: 15px;
+    left: 7.5%;
+    /* half of width percentage on each side */
+    right: 7.5%;
+    display: block;
+    position: absolute;
+    text-align: right;
+}
+
+#socials-wrapper svg:hover {
+    cursor: pointer;
+}
+
+#socials-wrapper a {
+    display: inline-block;
+}
+
+#twitter-button:hover {
+    fill: #1DA1F2
+}
+
+#youtube-button:hover {
+    fill: #C4302B
+}
+
+#github-button:hover {
+    fill: #F0F6FC;
+}
+
+@media screen and (max-width: 800px) {
+    #wrapper {
+        text-align: center;
+        width: 60%;
+    }
+
+    #socials-wrapper {
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        position: relative;
+        text-align: center;
+    }
 }
