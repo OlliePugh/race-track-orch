@@ -1,0 +1,48 @@
+:root {
+    --primary1: #E45826;
+    --background: #1B1A17;
+    --accent1: #E6D5B8;
+    --accent2: #F0A500;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    background-color: var(--background);
+}
+
+#title {
+    font-family: 'Montserrat';
+    color: var(--primary1);
+    margin-left: 10px;
+    margin-top: 0;
+}
+
+@font-face {
+    font-family: 'Montserrat'; /*a name to be used later*/
+    src: url('Montserrat-Black.ttf'); /*URL to font*/
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat'; /*a name to be used later*/
+}
+
+#wrapper {
+    border-radius: 5px;
+    width: 85%;
+    padding: 10px 50px;
+    margin: 10px auto;
+    background-color: var(--accent1);
+}
+
+#join-button {
+    display:block;
+    margin: auto;
+    border: white solid 2px;
+    background-color: var(--accent2);
+    border-radius: 5px;
+}
+
+#join-button:hover {
+    border-color: var(--primary1);
+}

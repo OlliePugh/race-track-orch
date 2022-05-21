@@ -1,0 +1,7 @@
+.slow-transition {
+    transition: 200ms;
+}
+
+.fast-transition {
+    transition: 50ms;
+}
