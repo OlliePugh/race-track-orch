@@ -1,14 +1,16 @@
 import express from "express";
-import streamSetup from "./stream-handler.js"
+import streamSetup from "./stream-handler/stream-handler.js"
 import fs from "fs";
 import http from "http"
 import https from "https"
-import adminInfo from "../admin-details.js";
+import adminInfo from "../../admin-details.js";
 import { Server } from "socket.io"
 import { v4 as uuidv4 } from 'uuid';
 import cookie from "cookie"
 import cookies from "cookie-parser"
-import utils from "./consts.js"
+import utils from "../consts.js"
+import Queue from "./queue/queue.js";
+import User from "./user/user.js";
 
 const privateKey = fs.readFileSync('keys/olliepugh_com.key', 'utf8');
 const certificate = fs.readFileSync('keys/olliepugh_com.crt', 'utf8');
@@ -16,7 +18,7 @@ const certificate = fs.readFileSync('keys/olliepugh_com.crt', 'utf8');
 const credentials = { key: privateKey, cert: certificate };
 
 const app = express();
-
+const queue = new Queue();
 // setup routing
 app.enable("trust proxy"); // enforce https
 app.use((req, res, next) => {
@@ -25,7 +27,7 @@ app.use((req, res, next) => {
 
 // expose view folder
 app.use(cookies())
-app.use(express.static("public"));
+app.use(express.static("src/client/public"));
 app.get('/', function (req, res) {
     if (!(utils.CLIENT_COOKIE_KEY in req.cookies)) {
         res.set('Set-Cookie', cookie.serialize(utils.CLIENT_COOKIE_KEY, uuidv4(), {
@@ -33,8 +35,9 @@ app.get('/', function (req, res) {
             maxAge: 60 * 60 * 24 * 7 // 1 week
         }));
     }
-    res.sendFile("view/queue.html", { root: './src' });  // server the page
+    res.sendFile("client/view/queue/queue.html", { root: './src' });  // server the page
 });
+app.use(express.static("src/client/view/queue/public"));
 
 app.use((req, res, next) => {
     const auth = {
@@ -52,7 +55,7 @@ app.use((req, res, next) => {
     res.status(401).send("Authentication required.");
 });
 
-app.use(express.static("src/admin"));
+app.use(express.static("src/client/admin"));
 
 streamSetup(app)
 
@@ -61,12 +64,25 @@ const httpsServer = https.createServer(credentials, app);
 const io = new Server(httpsServer);
 
 io.on("connection", (socket) => {
-    console.log("hey")
-    console.log(socket.request.headers.cookie);
-
     socket.on("join-queue", () => {
-        console.log("hello")
-        socket.emit("duplicate-tab");
+        const cookies = cookie.parse(socket.request.headers.cookie)
+        if (!cookies[utils.CLIENT_COOKIE_KEY]) {
+            socket.emit("missing-cookie")  // TODO this needs implementing
+            return;
+        }
+
+        const newUser = new User(socket.id, cookies[utils.CLIENT_COOKIE_KEY])
+        const positionInQueue = queue.positionInQueue(newUser)
+
+        if (positionInQueue === -1) {
+            queue.add(newUser)
+        }
+        else if (queue.get(positionInQueue).socketId !== newUser.socketId) {  // user has different socket id but same client id cookie
+            socket.emit("duplicate-tab")
+        }
+
+
+        // if the user is already in the queue legit just ignore the request
     });
 })
 

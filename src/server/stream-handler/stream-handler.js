@@ -1,5 +1,5 @@
 import MjpegProxy from "node-mjpeg-proxy";
-import Cars from "./config/cars.js"
+import Cars from "../../config/cars.js"
 
 // Events
 

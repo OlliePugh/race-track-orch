@@ -8,6 +8,10 @@ socket.on("duplicate-tab", () => {
     toggleDuplicateTab(true);
 })
 
+socket.on("missing-cookie", () => {
+    alert("Something has gone wrong! Please reset your cookies and try again later")
+})
+
 const joinQueue = () => {
     console.log("ello")
     socket.emit("join-queue")
