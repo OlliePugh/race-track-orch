@@ -29,7 +29,7 @@
                 </svg></a>
         </div>
         <h2>This is where broadcast messages go</h2>
-        <button id="join-button" class="slow-transition">
+        <button id="join-button" class="slow-transition" onclick="joinQueue()">
             <p>Join the Queue!</p>
         </button>
         <h2>There are <span>0</span> people in the queue</h2>
@@ -43,6 +43,14 @@
                         of type and scrambled it to make a type specimen book.</p>
                 </div>
             </details>
+        </div>
+        <div id="duplicate-tab-wrapper" class="slow-transition">
+            <div id="duplicate-content">
+                <h2>Duplicate Tabs Detected</h2>
+                <p>Looks like we already have you in the queue in another browser</p><br />
+                <p>Would you like to make this your main tab?</p>
+                <button id="duplicate-tab-button" class="slow-transition" onclick="makeMainTab()"><p class="slow-transition">Make this my main tab</p></button>
+            </div>
         </div>
         <script src="/socket.io/socket.io.js"></script>
         <script src="queue.js"></script>
