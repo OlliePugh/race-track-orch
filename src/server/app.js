@@ -1,5 +1,6 @@
 import express from "express";
-import streamSetup from "./stream-handler/stream-handler.js"
+import path from "path";
+import streamSetup from "./stream-handler"
 import fs from "fs";
 import http from "http"
 import https from "https"
@@ -9,8 +10,9 @@ import { v4 as uuidv4 } from 'uuid';
 import cookie from "cookie"
 import cookies from "cookie-parser"
 import utils from "../consts.js"
-import Queue from "./queue/queue.js";
-import User from "./user/user.js";
+import Queue from "./queue";
+import User from "./user";
+import SOCKET_EVENTS from "../socket-events";
 
 const privateKey = fs.readFileSync('keys/olliepugh_com.key', 'utf8');
 const certificate = fs.readFileSync('keys/olliepugh_com.crt', 'utf8');
@@ -18,7 +20,6 @@ const certificate = fs.readFileSync('keys/olliepugh_com.crt', 'utf8');
 const credentials = { key: privateKey, cert: certificate };
 
 const app = express();
-const queue = new Queue();
 // setup routing
 app.enable("trust proxy"); // enforce https
 app.use((req, res, next) => {
@@ -27,7 +28,7 @@ app.use((req, res, next) => {
 
 // expose view folder
 app.use(cookies())
-app.use(express.static("src/client/public"));
+app.use(express.static(path.join(__dirname, "../client/public")));
 app.get('/', function (req, res) {
     if (!(utils.CLIENT_COOKIE_KEY in req.cookies)) {
         res.set('Set-Cookie', cookie.serialize(utils.CLIENT_COOKIE_KEY, uuidv4(), {
@@ -35,9 +36,9 @@ app.get('/', function (req, res) {
             maxAge: 60 * 60 * 24 * 7 // 1 week
         }));
     }
-    res.sendFile("client/view/queue/queue.html", { root: './src' });  // server the page
+    res.sendFile(path.join(__dirname, "../client/view/queue/queue.html"));  // server the page
 });
-app.use(express.static("src/client/view/queue/public"));
+app.use(express.static(path.join(__dirname, "../client/view/queue/public")));
 
 app.use((req, res, next) => {
     const auth = {
@@ -55,13 +56,26 @@ app.use((req, res, next) => {
     res.status(401).send("Authentication required.");
 });
 
-app.use(express.static("src/client/admin"));
+app.use(express.static(path.join(__dirname, "../client/admin")));
 
 streamSetup(app)
 
 const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
 const io = new Server(httpsServer);
+
+const queue = new Queue({
+    onAdd: user => {
+        console.log(`HELLO ${user.username}`)
+        io.sockets.to(user.socketId).emit(SOCKET_EVENTS.JOINED_QUEUE)
+        broadcastQueueUpdate();
+    }
+});
+
+const broadcastQueueUpdate = () => {
+    console.log("updating queue")
+    queue.contents.forEach((user, index) => { io.sockets.to(user.socketId).emit(SOCKET_EVENTS.QUEUE_UPDATE, { current: index + 1, total: queue.contents.length }) })
+}
 
 io.on("connection", (socket) => {
     socket.on("join-queue", () => {

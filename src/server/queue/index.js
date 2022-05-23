@@ -1,10 +1,18 @@
 export default class Queue {
     contents = [];
 
+    constructor(config = {}) {
+        this.onAdd = config.onAdd;
+        this.onRemove = config.onRemove;
+    }
+
     add(user) {
         if (this.positionInQueue(user) === -1) {
             console.log(`Adding ${user.username} to queue`)
             this.contents.push(user)
+            if (this.onAdd) {
+                this.onAdd(user);
+            }
         }
     }
 
@@ -13,6 +21,9 @@ export default class Queue {
         const userPos = this.positionInQueue(user);
         if (userPos !== -1) {  // the user is in the queue
             this.contents = this.contents.splice(userPos, 1)  // remove the one user
+            if (this.onRemove) {
+                this.onRemove(user);
+            }
         }
     }
 

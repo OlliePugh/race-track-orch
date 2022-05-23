@@ -1,19 +1,33 @@
 const socket = io.connect(window.location.origin, { secure: true });
 
-socket.on("connect", () => {
+const SOCKET_EVENTS = {  // webpack was made for things like this
+    CONNECT: "connect",
+    DUPLICATE_TAB: "duplicate-tab",
+    MISSING_COOKIE: "missing-cookie",
+    JOIN_QUEUE: "join-queue",
+    LEAVE_QUEUE: "leave-queue",
+    QUEUE_UPDATE: "queue-update"
+}
+
+socket.on(SOCKET_EVENTS.CONNECT, () => {
     console.log("hello there")
 });
 
-socket.on("duplicate-tab", () => {
+socket.on(SOCKET_EVENTS.DUPLICATE_TAB, () => {
     toggleDuplicateTab(true);
 })
 
-socket.on("missing-cookie", () => {
+socket.on(SOCKET_EVENTS.MISSING_COOKIE, () => {
     alert("Something has gone wrong! Please reset your cookies and try again later")
 })
 
+socket.on(SOCKET_EVENTS.QUEUE_UPDATE, ({ current, total }) => {
+    console.log(current)
+    console.log(total)
+})
+
 const joinQueue = () => {
-    socket.emit("join-queue")
+    socket.emit(SOCKET_EVENTS.JOIN_QUEUE)
 }
 
 const toggleDuplicateTab = (state) => {
