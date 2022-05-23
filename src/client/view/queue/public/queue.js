@@ -13,7 +13,6 @@ socket.on("missing-cookie", () => {
 })
 
 const joinQueue = () => {
-    console.log("ello")
     socket.emit("join-queue")
 }
 

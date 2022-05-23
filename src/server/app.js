@@ -3,7 +3,7 @@ import streamSetup from "./stream-handler/stream-handler.js"
 import fs from "fs";
 import http from "http"
 import https from "https"
-import adminInfo from "../../admin-details.js";
+import adminInfo from "../admin-details.js";
 import { Server } from "socket.io"
 import { v4 as uuidv4 } from 'uuid';
 import cookie from "cookie"
@@ -86,6 +86,10 @@ io.on("connection", (socket) => {
 })
 
 
-httpServer.listen(8080);
-httpsServer.listen(8443);
+httpServer.listen(8080, () => {
+    console.log("Started serving HTTP")
+});
+httpsServer.listen(8443, () => {
+    console.log("Started serving HTTPS")
+});
 

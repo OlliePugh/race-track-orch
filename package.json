@@ -1,8 +1,9 @@
 {
   "main": "app.js",
-  "type": "module",
   "scripts": {
-    "start": "node src/server/app.js"
+    "dev": "nodemon --exec babel-node src/server/app.js",
+    "build": "babel src -d dist --copy-files",
+    "start": "npm run build && node dist/server/app.js"
   },
   "dependencies": {
     "cookie": "^0.5.0",
@@ -11,5 +12,12 @@
     "node-mjpeg-proxy": "^0.3.2",
     "socket.io": "^4.5.1",
     "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.17.10",
+    "@babel/core": "^7.18.0",
+    "@babel/node": "^7.17.10",
+    "@babel/preset-env": "^7.18.0",
+    "nodemon": "^2.0.16"
   }
 }
