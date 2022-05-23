@@ -107,6 +107,10 @@ button:hover:enabled {
     color: white;
 }
 
+#in-queue-message {
+    display: none
+}
+
 @media screen and (max-width: 800px) {
     #wrapper {
         text-align: center;

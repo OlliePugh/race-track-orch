@@ -32,7 +32,8 @@
         <button id="join-button" class="slow-transition" onclick="joinQueue()">
             <p>Join the Queue!</p>
         </button>
-        <h2>There are <span>0</span> people in the queue</h2>
+        <h2 id="in-queue-message">You are in position <span id="current-queue-position">0</span> out of <span class="total-queue-count">0</span></h2>
+        <h2 id="not-in-queue-message">There are <span class="total-queue-count">0</span> people in the queue</h2>
         <h1 id="faq-header"><u>FAQ</u></h1>
         <div class="outer">
             <details>

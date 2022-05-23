@@ -4,6 +4,7 @@ export default class Queue {
     constructor(config = {}) {
         this.onAdd = config.onAdd;
         this.onRemove = config.onRemove;
+        this.onChange = config.onChange;
     }
 
     add(user) {
@@ -13,17 +14,19 @@ export default class Queue {
             if (this.onAdd) {
                 this.onAdd(user);
             }
+            this.#changeCallback();
         }
     }
 
     remove(user) {
-        console.log(`Removing ${user} from queue`)
+        console.log(`Removing ${user.username} from queue`)
         const userPos = this.positionInQueue(user);
         if (userPos !== -1) {  // the user is in the queue
-            this.contents = this.contents.splice(userPos, 1)  // remove the one user
+            this.contents.splice(userPos, 1)  // remove the one user
             if (this.onRemove) {
                 this.onRemove(user);
             }
+            this.#changeCallback();
         }
     }
 
@@ -33,12 +36,19 @@ export default class Queue {
             if (currUser.isSameUser(user)) {
                 return i;
             }
+            this.#changeCallback();
         }
         return -1;
     }
 
     get(index) {
         return this.contents[index]
+    }
+
+    #changeCallback() {
+        if (this.onChange) {
+            this.onChange();
+        }
     }
 
 }

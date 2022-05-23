@@ -64,39 +64,61 @@ const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
 const io = new Server(httpsServer);
 
+const broadcastQueueUpdate = () =>
+    queue.contents.forEach((user, index) => { io.sockets.to(user.socketId).emit(SOCKET_EVENTS.QUEUE_UPDATE, { current: index + 1, total: queue.contents.length }) })
+
+
 const queue = new Queue({
     onAdd: user => {
-        console.log(`HELLO ${user.username}`)
         io.sockets.to(user.socketId).emit(SOCKET_EVENTS.JOINED_QUEUE)
-        broadcastQueueUpdate();
-    }
+    },
+    onRemove: user => {
+        io.sockets.to(user.socketId).emit(SOCKET_EVENTS.LEFT_QUEUE)
+    },
+    onChange: broadcastQueueUpdate
 });
 
-const broadcastQueueUpdate = () => {
-    console.log("updating queue")
-    queue.contents.forEach((user, index) => { io.sockets.to(user.socketId).emit(SOCKET_EVENTS.QUEUE_UPDATE, { current: index + 1, total: queue.contents.length }) })
-}
-
-io.on("connection", (socket) => {
-    socket.on("join-queue", () => {
+io.on(SOCKET_EVENTS.CONNECT, (socket) => {
+    socket.on(SOCKET_EVENTS.JOIN_QUEUE, () => {
         const cookies = cookie.parse(socket.request.headers.cookie)
+        const newUser = new User(socket.id, cookies[utils.CLIENT_COOKIE_KEY])
         if (!cookies[utils.CLIENT_COOKIE_KEY]) {
-            socket.emit("missing-cookie")  // TODO this needs implementing
+            socket.emit(SOCKET_EVENTS.MISSING_COOKIE)  // TODO this needs implementing
             return;
         }
 
-        const newUser = new User(socket.id, cookies[utils.CLIENT_COOKIE_KEY])
         const positionInQueue = queue.positionInQueue(newUser)
         if (positionInQueue === -1) {  // if the user is not in the queue
             queue.add(newUser)
         }
         else if (queue.get(positionInQueue).socketId !== newUser.socketId) {  // user has different socket id but same client id cookie
-            socket.emit("duplicate-tab")
+            socket.emit(SOCKET_EVENTS.DUPLICATE_TAB)
         }
-
-
         // if the user is already in the queue legit just ignore the request
     });
+
+    socket.on(SOCKET_EVENTS.QUEUE_STATUS_REQUEST, () => {
+        let user;
+        let currentPosition;
+        try {
+            user = User.getUser({ socketId: socket.id });
+            currentPosition = queue.positionInQueue(user)
+        }
+        catch (e) { }
+        socket.emit(SOCKET_EVENTS.QUEUE_UPDATE, { current: currentPosition === -1 ? undefined : currentPosition, total: queue.contents.length })
+    })
+
+    socket.on(SOCKET_EVENTS.DISCONNECT, () => {
+        let user;
+        try {
+            user = User.getUser({ socketId: socket.id });
+        }
+        catch (e) {  // user does not exist therefore discard
+            return;
+        }
+        queue.remove(user)  // I have a feeling this disconnected logic between users and queue is going to make my life hell
+        User.delete(user);
+    })
 })
 
 
