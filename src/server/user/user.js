@@ -6,7 +6,7 @@ export default class User {
     }
 
     isSameUser(user) {
-        return this.clientId = user.clientId;
+        return this.clientId === user.clientId;
     }
 
     updateSocketId(socketId) {

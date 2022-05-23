@@ -73,8 +73,7 @@ io.on("connection", (socket) => {
 
         const newUser = new User(socket.id, cookies[utils.CLIENT_COOKIE_KEY])
         const positionInQueue = queue.positionInQueue(newUser)
-
-        if (positionInQueue === -1) {
+        if (positionInQueue === -1) {  // if the user is not in the queue
             queue.add(newUser)
         }
         else if (queue.get(positionInQueue).socketId !== newUser.socketId) {  // user has different socket id but same client id cookie
