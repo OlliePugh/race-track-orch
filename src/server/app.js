@@ -64,9 +64,19 @@ const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
 const io = new Server(httpsServer);
 
-const broadcastQueueUpdate = () =>
+const broadcastQueueUpdate = () => {
+    io.emit(SOCKET_EVENTS.QUEUE_UPDATE, { total: queue.contents.length });
     queue.contents.forEach((user, index) => { io.sockets.to(user.socketId).emit(SOCKET_EVENTS.QUEUE_UPDATE, { current: index + 1, total: queue.contents.length }) })
+}
 
+const getClientId = (socket) => {
+    const cookies = cookie.parse(socket.request.headers.cookie)
+    if (!cookies[utils.CLIENT_COOKIE_KEY]) {
+        socket.emit(SOCKET_EVENTS.MISSING_COOKIE)  // TODO this needs implementing
+        return;
+    }
+    return cookies[utils.CLIENT_COOKIE_KEY]
+}
 
 const queue = new Queue({
     onAdd: user => {
@@ -79,21 +89,34 @@ const queue = new Queue({
 });
 
 io.on(SOCKET_EVENTS.CONNECT, (socket) => {
-    socket.on(SOCKET_EVENTS.JOIN_QUEUE, () => {
-        const cookies = cookie.parse(socket.request.headers.cookie)
-        const newUser = new User(socket.id, cookies[utils.CLIENT_COOKIE_KEY])
-        if (!cookies[utils.CLIENT_COOKIE_KEY]) {
-            socket.emit(SOCKET_EVENTS.MISSING_COOKIE)  // TODO this needs implementing
-            return;
-        }
 
-        const positionInQueue = queue.positionInQueue(newUser)
+    let newUser = new User(socket.id, getClientId(socket))
+
+    socket.on(SOCKET_EVENTS.JOIN_QUEUE, (username = undefined) => {
+
+        const user = User.getUser({ clientId: getClientId(socket) })
+        user.setUsername(username);
+
+        const positionInQueue = queue.positionInQueue(user)
         if (positionInQueue === -1) {  // if the user is not in the queue
-            queue.add(newUser)
+            queue.add(user)
         }
         else if (queue.get(positionInQueue).socketId !== newUser.socketId) {  // user has different socket id but same client id cookie
             socket.emit(SOCKET_EVENTS.DUPLICATE_TAB)
         }
+        // if the user is already in the queue legit just ignore the request
+    });
+
+    socket.on(SOCKET_EVENTS.LEAVE_QUEUE, () => {
+        const cookies = cookie.parse(socket.request.headers.cookie)
+        let user;
+        try {
+            user = User.getUser({ clientId: cookies[utils.CLIENT_COOKIE_KEY] })
+        }
+        catch (e) {
+            console.error("COULD NOT FIND USER THAT WAS IN THE QUEUE")
+        }
+        queue.remove(user);
         // if the user is already in the queue legit just ignore the request
     });
 

@@ -14,9 +14,13 @@ export default class User {
         return this.clientId === user.clientId;
     }
 
-    updateSocketId(socketId) {
+    setSocketId(socketId) {
         console.log(`Updating socket id for ${this.username}`)
         this.socketId = socketId;
+    }
+
+    setUsername(username) {
+        this.username = username;
     }
 
     static getUser({ clientId, socketId }) {

@@ -6,6 +6,7 @@ export default {
     MESSAGE: "message",
     QUEUE_STATUS_REQUEST: "queue-status-request",
     JOIN_QUEUE: "join-queue",
+    LEAVE_QUEUE: "leave-queue",
     MISSING_COOKIE: "missing-cookie",
     DUPLICATE_TAB: "duplicate-tab",
     DISCONNECT: "disconnect"

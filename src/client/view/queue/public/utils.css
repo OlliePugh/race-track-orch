@@ -1,7 +1,6 @@
 :root {
-    --primary1: #E45826;
-    --background: #1B1A17;
-    --accent1: #E6D5B8;
+    --primary1: teal;
+    --background: #222222;
     --accent2: #F0A500;
 }
 
@@ -29,6 +28,11 @@
     border-radius: 5px;
     margin-left: 20px;
 }
+
+.centering-div {
+    text-align: center;
+}
+
 summary {
     border-radius: 5px;
     cursor: pointer;
@@ -36,6 +40,7 @@ summary {
     font-size: 20px;
     outline: none;
     font-style: italic;
+    color: white;
 }
 
 summary p {

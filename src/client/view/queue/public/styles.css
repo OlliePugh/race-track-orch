@@ -20,6 +20,7 @@ h4,
 h5,
 h6 {
     font-family: 'Montserrat';
+    color: white;
 }
 
 #wrapper {
@@ -30,16 +31,23 @@ h6 {
     background-color: var(--accent1);
 }
 
+#username-input {
+    font-family: "Montserrat";
+    height: 40px;
+    width: 200px;
+    margin-bottom: 20px;
+}
+
 button {
     display: block;
     margin: auto;
     border: white solid 2px;
-    background-color: var(--accent2);
-    border-radius: 5px;
+    background-color: var(--primary1);
+    border-radius: 2px;
 }
 
 button:hover:enabled {
-    border-color: var(--primary1);
+    border-color: black;
     cursor: pointer;
     color: white;
 }
@@ -52,6 +60,10 @@ button:hover:enabled {
     display: block;
     position: absolute;
     text-align: right;
+}
+
+#socials-wrapper svg {
+    fill: white
 }
 
 #socials-wrapper svg:hover {
@@ -71,7 +83,7 @@ button:hover:enabled {
 }
 
 #github-button:hover {
-    fill: #F0F6FC;
+    fill: #818181;
 }
 
 #duplicate-tab-wrapper {

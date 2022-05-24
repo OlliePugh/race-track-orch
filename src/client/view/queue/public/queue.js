@@ -9,7 +9,13 @@ const SOCKET_EVENTS = {  // webpack was made for things like this
     LEAVE_QUEUE: "leave-queue",
     QUEUE_UPDATE: "queue-update",
     JOINED_QUEUE: "joined-queue",
+    LEFT_QUEUE: "left-queue",
     QUEUE_STATUS_REQUEST: "queue-status-request"
+}
+
+const CONSTS = {
+    LEAVE_QUEUE_TEXT: "Leave the Queue",
+    JOIN_QUEUE_TEXT: "Join the Queue"
 }
 
 socket.on(SOCKET_EVENTS.CONNECT, () => {
@@ -34,8 +40,23 @@ socket.on(SOCKET_EVENTS.JOINED_QUEUE, () => {
     toggleInQueueHud(true);
 })
 
+socket.on(SOCKET_EVENTS.LEFT_QUEUE, () => {
+    toggleInQueueHud(false);
+})
+
 const joinQueue = () => {
-    socket.emit(SOCKET_EVENTS.JOIN_QUEUE)
+    let username = document.getElementById("username-input").value
+    if (!username) {
+        username = "Anonymous"
+    }
+    toggleInQueueHud(true);
+    socket.emit(SOCKET_EVENTS.JOIN_QUEUE, username)
+}
+
+const leaveQueue = () => {
+    console.log("leaving queue")
+    toggleInQueueHud(false);
+    socket.emit(SOCKET_EVENTS.LEAVE_QUEUE)
 }
 
 const toggleDuplicateTab = (state) => {
@@ -56,8 +77,12 @@ const makeMainTab = () => {  // TODO THIS NEEDS FINISHING
 }
 
 const toggleInQueueHud = (state) => {
-    document.getElementById("in-queue-message").style.display = "block"
+    document.getElementById("in-queue-message").style.display = state ? "block" : "none"
     document.getElementById("not-in-queue-message").style.display = state ? "none" : "block";
+    document.getElementById("username-input").disabled = state;
+
+    document.getElementById("join-button").onclick = state ? leaveQueue : joinQueue
+    document.querySelectorAll("#join-button p")[0].textContent = state ? CONSTS.LEAVE_QUEUE_TEXT : CONSTS.JOIN_QUEUE_TEXT
 }
 
 const updateQueue = (current, total) => {
