@@ -1,4 +1,6 @@
 import { AssertionError } from "assert"
+import cookie from "cookie"
+import utils from "../../consts.js"
 export default class User {
 
     static #users = [];
@@ -43,5 +45,14 @@ export default class User {
                 return;
             }
         }
+    }
+
+    static getClientId(socket) {
+        const cookies = cookie.parse(socket.request.headers.cookie)
+        if (!cookies[utils.CLIENT_COOKIE_KEY]) {
+            socket.emit(SOCKET_EVENTS.MISSING_COOKIE)  // TODO this needs implementing
+            return;
+        }
+        return cookies[utils.CLIENT_COOKIE_KEY]
     }
 }
