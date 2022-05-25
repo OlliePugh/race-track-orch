@@ -7,7 +7,7 @@
 
 @font-face {
     font-family: 'Montserrat'; /*a name to be used later*/
-    src: url('Montserrat-Black.ttf'); /*URL to font*/
+    src: url('../Montserrat-Black.ttf'); /*URL to font*/
 }
 
 .slow-transition {

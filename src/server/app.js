@@ -7,6 +7,7 @@ import https from "https"
 import adminInfo from "../admin-details.js";
 import { Server } from "socket.io"
 import { v4 as uuidv4 } from 'uuid';
+import cookie from "cookie"
 import cookies from "cookie-parser"
 import utils from "../consts.js"
 import Queue from "./queue";
@@ -26,9 +27,11 @@ app.use((req, res, next) => {
     req.secure ? next() : res.redirect("https://" + req.headers.host + req.url);
 });
 
+const adminClientIds = [];
+
 // expose view folder
 app.use(cookies())
-app.use(express.static(path.join(__dirname, "../client/public")));
+app.use("/", express.static(path.join(__dirname, "../client/public")));
 app.get('/', function (req, res) {
     if (!(utils.CLIENT_COOKIE_KEY in req.cookies)) {
         res.set('Set-Cookie', cookie.serialize(utils.CLIENT_COOKIE_KEY, uuidv4(), {
@@ -38,7 +41,7 @@ app.get('/', function (req, res) {
     }
     res.sendFile(path.join(__dirname, "../client/view/queue/queue.html"));  // server the page
 });
-app.use(express.static(path.join(__dirname, "../client/view/queue/public")));
+app.use("/queue", express.static(path.join(__dirname, "../client/view/queue/public")));
 
 app.use((req, res, next) => {
     const auth = {
@@ -55,9 +58,16 @@ app.use((req, res, next) => {
     res.set("WWW-Authenticate", 'Basic realm="401"');
     res.status(401).send("Authentication required.");
 });
-
-app.use(express.static(path.join(__dirname, "../client/admin")));
-
+app.get('/admin', function (req, res) {
+    if (!(utils.ADMIN_COOKIE_KEY in req.cookies)) {
+        res.set('Set-Cookie', cookie.serialize(utils.ADMIN_COOKIE_KEY, uuidv4(), {
+            httpOnly: false,  // allow to be accessed from a script
+            maxAge: 60 * 60 * 24 * 7 // 1 week
+        }));
+    }
+    res.sendFile(path.join(__dirname, "../client/admin/admin.html"));  // serve the page
+});
+app.use("/admin", express.static(path.join(__dirname, "../client/admin/public")));
 streamSetup(app)
 
 const httpServer = http.createServer(app);
@@ -84,9 +94,20 @@ io.on(SOCKET_EVENTS.CONNECT, (socket) => {
     new User(socket.id, User.getClientId(socket))
 
     queueSockets(socket, queue);
+    // adminSockets(socket, queue);
 
+    socket.on(SOCKET_EVENTS.DISCONNECT, () => {
+        let user;
+        try {
+            user = User.getUser({ socketId: socket.id });
+        }
+        catch (e) {  // user does not exist therefore discard
+            return;
+        }
+        queue.remove(user)  // I have a feeling this disconnected logic between users and queue is going to make my life hell
+        User.delete(user);
+    })
 })
-
 
 httpServer.listen(8080, () => {
     console.log("Started serving HTTP")

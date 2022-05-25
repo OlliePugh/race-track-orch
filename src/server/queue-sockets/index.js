@@ -1,11 +1,8 @@
 import User from "../user"
 import SOCKET_EVENTS from "../../socket-events";
-import cookie from "cookie"
 
 export default (socket, queue) => {
     socket.on(SOCKET_EVENTS.JOIN_QUEUE, (username = undefined) => {
-
-
         const user = User.getUser({ clientId: User.getClientId(socket) })
         user.setUsername(username);
 
@@ -40,17 +37,5 @@ export default (socket, queue) => {
         }
         catch (e) { }
         socket.emit(SOCKET_EVENTS.QUEUE_UPDATE, { current: currentPosition === -1 ? undefined : currentPosition, total: queue.contents.length })
-    })
-
-    socket.on(SOCKET_EVENTS.DISCONNECT, () => {
-        let user;
-        try {
-            user = User.getUser({ socketId: socket.id });
-        }
-        catch (e) {  // user does not exist therefore discard
-            return;
-        }
-        queue.remove(user)  // I have a feeling this disconnected logic between users and queue is going to make my life hell
-        User.delete(user);
     })
 }

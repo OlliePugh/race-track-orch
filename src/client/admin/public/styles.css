@@ -1,0 +1,15 @@
+#queue-list {
+    border: 2px black solid;
+    position: absolute;
+    top: 0;
+    right: 50px;
+}
+
+.car-stream {
+    display: block;
+    -webkit-user-select: none;
+    user-select: none;
+    margin: auto;
+    background-color: hsl(0, 0%, 25%);
+
+}
