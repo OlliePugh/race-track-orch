@@ -47,7 +47,7 @@ export default class Queue {
 
     #changeCallback() {
         if (this.onChange) {
-            this.onChange();
+            this.onChange(this);
         }
     }
 

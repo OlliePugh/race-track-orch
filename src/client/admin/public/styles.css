@@ -1,8 +1,23 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    height: 100%;
+}
+
+#title {
+    margin: 0;
+}
+
 #queue-list {
     border: 2px black solid;
     position: absolute;
     top: 0;
-    right: 50px;
+    right: 0;
+    width: 200px;
+    height: calc(100% - 4px);
+    overflow-y: scroll;
+    text-align: left;
 }
 
 .car-stream {

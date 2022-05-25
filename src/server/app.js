@@ -10,7 +10,7 @@ import SOCKET_EVENTS from "../socket-events";
 import queueSockets from "./socket-events/queue-sockets";
 import routing, { adminKeys } from "./routing";
 import commonSockets from "./socket-events/common-sockets";
-import adminSockets from "./socket-events/admin-sockets";
+import adminSockets, { updateAdminQueue } from "./socket-events/admin-sockets";
 import utils from "../consts"
 import cookie from "cookie"
 
@@ -27,9 +27,11 @@ streamSetup(app)
 const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
 const io = new Server(httpsServer);
+const admins = [];
 
-const broadcastQueueUpdate = () => {
+const broadcastQueueUpdate = (queue) => {
     io.emit(SOCKET_EVENTS.QUEUE_UPDATE, { total: queue.contents.length });
+    admins.forEach(admin => { updateAdminQueue(io.sockets.to(admin), queue) })  // send update to each admin
     queue.contents.forEach((user, index) => { io.sockets.to(user.socketId).emit(SOCKET_EVENTS.QUEUE_UPDATE, { current: index + 1, total: queue.contents.length }) })
 }
 
@@ -69,13 +71,18 @@ const userSetup = (socket, queue) => {
 const adminSetup = (socket, queue) => {
     const cookies = cookie.parse(socket.request.headers.cookie)
     const incomingAdminKey = cookies[utils.ADMIN_COOKIE_KEY]
-    console.log(cookies);
-    console.log(incomingAdminKey)
     if (!incomingAdminKey || !adminKeys.includes(incomingAdminKey)) {
         throw new Error("Missing admin key")
     }
-
+    admins.push(socket.id)  // add socket id to admims
     adminSockets(socket, queue)
+
+    socket.on(SOCKET_EVENTS.DISCONNECT, () => {
+        const index = admins.indexOf(socket.id);
+        if (index > -1) {
+            admins.splice(index, 1); // 2nd parameter means remove one item only
+        }
+    })
 }
 
 io.on(SOCKET_EVENTS.CONNECT, (socket) => {

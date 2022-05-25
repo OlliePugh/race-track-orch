@@ -22,6 +22,7 @@ socket.on(SOCKET_EVENTS.CONNECT, () => {
     console.log("Socket connected")
     socket.emit(SOCKET_EVENTS.QUEUE_STATUS_REQUEST)
 });
+
 socket.on(SOCKET_EVENTS.DISCONNECT, () => { alert("Lost connection to server! Please refresh") });
 
 socket.on(SOCKET_EVENTS.DUPLICATE_TAB, () => {

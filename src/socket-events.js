@@ -9,5 +9,6 @@ export default {
     LEAVE_QUEUE: "leave-queue",
     MISSING_COOKIE: "missing-cookie",
     DUPLICATE_TAB: "duplicate-tab",
-    DISCONNECT: "disconnect"
+    DISCONNECT: "disconnect",
+    ADMIN_USERNAME_QUEUE: "admin-username-queue"
 }
