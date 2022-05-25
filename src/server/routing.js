@@ -6,6 +6,8 @@ import adminInfo from "../admin-details.js";
 import path from "path";
 import express from "express";
 
+export const adminKeys = [];
+
 export default (app) => {
     // setup routing
     app.enable("trust proxy"); // enforce https
@@ -43,8 +45,10 @@ export default (app) => {
         res.status(401).send("Authentication required.");
     });
     app.get('/admin', function (req, res) {
-        if (!(utils.ADMIN_COOKIE_KEY in req.cookies)) {
-            res.set('Set-Cookie', cookie.serialize(utils.ADMIN_COOKIE_KEY, uuidv4(), {
+        if (!(utils.ADMIN_COOKIE_KEY in req.cookies) || !adminKeys.includes(req.cookies[utils.ADMIN_COOKIE_KEY])) {  // if cookie not set or if server does not recognise the cookie set a new one
+            const newKey = uuidv4();
+            adminKeys.push(newKey)
+            res.set('Set-Cookie', cookie.serialize(utils.ADMIN_COOKIE_KEY, newKey, {
                 httpOnly: false,  // allow to be accessed from a script
                 maxAge: 60 * 60 * 24 * 7 // 1 week
             }));
