@@ -9,6 +9,15 @@ export default class User {
         this.socketId = socketId;
         this.clientId = clientId;
         this.username = username
+        let userExists;
+        try {
+            userExists = User.getUser({ clientId })
+        }
+        catch { }
+        if (userExists !== undefined) {
+            throw new Error("Tab is already open with same client id")
+        }
+
         User.#users.push(this);
     }
 

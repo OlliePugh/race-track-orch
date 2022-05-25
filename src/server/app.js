@@ -91,7 +91,12 @@ const queue = new Queue({
 
 io.on(SOCKET_EVENTS.CONNECT, (socket) => {
 
-    new User(socket.id, User.getClientId(socket))
+    try {
+        new User(socket.id, User.getClientId(socket))
+    }
+    catch {
+        socket.emit(SOCKET_EVENTS.DUPLICATE_TAB)
+    }
 
     queueSockets(socket, queue);
     // adminSockets(socket, queue);

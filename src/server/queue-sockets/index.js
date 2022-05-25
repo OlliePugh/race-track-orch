@@ -10,9 +10,6 @@ export default (socket, queue) => {
         if (positionInQueue === -1) {  // if the user is not in the queue
             queue.add(user)
         }
-        else if (queue.get(positionInQueue).socketId !== newUser.socketId) {  // user has different socket id but same client id cookie
-            socket.emit(SOCKET_EVENTS.DUPLICATE_TAB)
-        }
         // if the user is already in the queue legit just ignore the request
     });
 
