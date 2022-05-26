@@ -5,6 +5,7 @@ import utils from "../consts.js"
 import adminInfo from "../admin-details.js";
 import path from "path";
 import express from "express";
+import streamSetup from "./stream-handler"
 
 export const adminKeys = [];
 
@@ -29,6 +30,9 @@ export default (app) => {
     });
     app.use("/queue", express.static(path.join(__dirname, "../client/view/queue/public")));
 
+    streamSetup(app)
+
+    // admin stuffs
     app.use((req, res, next) => {
         const auth = {
             login: adminInfo.username,
@@ -44,6 +48,8 @@ export default (app) => {
         res.set("WWW-Authenticate", 'Basic realm="401"');
         res.status(401).send("Authentication required.");
     });
+
+
     app.get('/admin', function (req, res) {
         if (!(utils.ADMIN_COOKIE_KEY in req.cookies) || !adminKeys.includes(req.cookies[utils.ADMIN_COOKIE_KEY])) {  // if cookie not set or if server does not recognise the cookie set a new one
             const newKey = uuidv4();

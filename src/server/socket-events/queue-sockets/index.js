@@ -3,7 +3,7 @@ import SOCKET_EVENTS from "../../../socket-events";
 
 export default (socket, queue) => {
     socket.on(SOCKET_EVENTS.JOIN_QUEUE, (username = undefined) => {
-        const user = User.getUser({ clientId: User.getClientId(socket) })
+        const user = User.getUser({ clientId: User.getClientIdFromSocket(socket) })
         user.setUsername(username);
 
         const positionInQueue = queue.positionInQueue(user)
@@ -16,7 +16,7 @@ export default (socket, queue) => {
     socket.on(SOCKET_EVENTS.LEAVE_QUEUE, () => {
         let user;
         try {
-            user = User.getUser({ clientId: User.getClientId(socket) })
+            user = User.getUser({ clientId: User.getClientIdFromSocket(socket) })
         }
         catch (e) {
             console.error("COULD NOT FIND USER THAT WAS IN THE QUEUE")

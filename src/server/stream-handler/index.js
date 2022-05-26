@@ -1,5 +1,8 @@
-import MjpegProxy from "node-mjpeg-proxy";
+import MjpegProxy, { allowedClients } from "./mjpeg-proxy";
 import Cars from "../../config/cars.js"
+import User from "../user";
+import { adminKeys } from "../routing";
+import utils from "../../consts"
 
 // Events
 
@@ -25,6 +28,15 @@ const setupStream = (carIp) => {
 export default (app) => {
     Cars.forEach((car, index) => {
         const proxy = setupStream(car)
-        app.get(`/stream${index}`, proxy.proxyRequest);
+        app.get(`/stream${index}`, (req, res) => {
+            // is the user allowed to see this page?
+            const clientId = User.getClientIdFromRequest(req)
+            if (!(allowedClients.includes(clientId) || adminKeys.includes(req.cookies[utils.ADMIN_COOKIE_KEY]))) {
+                console.log("No permission to view video stream")
+                res.status(403).send();
+                return;
+            }
+            proxy.proxyRequest(req, res);
+        });
     })
 }

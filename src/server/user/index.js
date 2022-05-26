@@ -56,12 +56,20 @@ export default class User {
         }
     }
 
-    static getClientId(socket) {
+    static getClientIdFromSocket(socket) {
         const cookies = cookie.parse(socket.request.headers.cookie)
         if (!cookies[utils.CLIENT_COOKIE_KEY]) {
             socket.emit(SOCKET_EVENTS.MISSING_COOKIE)  // TODO this needs implementing
             return;
         }
         return cookies[utils.CLIENT_COOKIE_KEY]
+    }
+
+    static getClientIdFromRequest(req) {
+        const clientId = req.cookies[utils.CLIENT_COOKIE_KEY]
+        if (!clientId) {
+            console.error("NO CLIENT ID FOUND - IMPLEMENT HANDLER") //TODO <--- this
+        }
+        return clientId
     }
 }

@@ -1,5 +1,4 @@
 import express from "express";
-import streamSetup from "./stream-handler"
 import fs from "fs";
 import http from "http"
 import https from "https"
@@ -22,7 +21,6 @@ const credentials = { key: privateKey, cert: certificate };
 const app = express();
 // setup routing
 routing(app);
-streamSetup(app)
 
 const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
@@ -48,7 +46,7 @@ const queue = new Queue({
 const userSetup = (socket, queue) => {
     queueSockets(socket, queue);
     try {
-        new User(socket.id, User.getClientId(socket))
+        new User(socket.id, User.getClientIdFromSocket(socket))
     }
     catch {
         socket.emit(SOCKET_EVENTS.DUPLICATE_TAB)
