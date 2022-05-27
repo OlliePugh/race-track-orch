@@ -1,10 +1,11 @@
 import MjpegProxy, { allowedClients } from "./mjpeg-proxy";
-import Cars from "../../config/cars.js"
 import User from "../user";
 import { adminKeys } from "../routing";
 import utils from "../../consts"
 
 // Events
+
+const cars = [];
 
 const setupStream = (carIp) => {
     const proxy = new MjpegProxy(`http://${carIp}:81/stream`);
@@ -25,10 +26,12 @@ const setupStream = (carIp) => {
     return proxy;
 }
 
-export default (app) => {
-    Cars.forEach((car, index) => {
+export default (app, car) => {
+    if (!cars.includes(car)) {
+        console.log(`Car with IP ${car} connected`)
+        cars.push(car)
         const proxy = setupStream(car)
-        app.get(`/stream${index}`, (req, res) => {
+        app.get(`/stream${cars.indexOf(car)}`, (req, res) => {
             // is the user allowed to see this page?
             const clientId = User.getClientIdFromRequest(req)
             if (!(allowedClients.includes(clientId) || adminKeys.includes(req.cookies[utils.ADMIN_COOKIE_KEY]))) {
@@ -38,5 +41,5 @@ export default (app) => {
             }
             proxy.proxyRequest(req, res);
         });
-    })
+    }
 }

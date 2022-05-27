@@ -5,11 +5,21 @@ import utils from "../consts.js"
 import adminInfo from "../admin-details.js";
 import path from "path";
 import express from "express";
-import streamSetup from "./stream-handler"
+import carSetup from "./car-handler"
 
 export const adminKeys = [];
 
 export default (app) => {
+
+    app.get("/car-handshake", (req, res) => {  // allow for http for this endpoint
+        if (req.headers["api-key"] !== adminInfo.carApiKey) {
+            res.status(403).send()
+            return;
+        }
+        carSetup(app, req.socket.remoteAddress.substr(7))
+        res.status(200).send();
+    })
+
     // setup routing
     app.enable("trust proxy"); // enforce https
     app.use((req, res, next) => {
@@ -29,8 +39,6 @@ export default (app) => {
         res.sendFile(path.join(__dirname, "../client/view/queue/queue.html"));  // server the page
     });
     app.use("/queue", express.static(path.join(__dirname, "../client/view/queue/public")));
-
-    streamSetup(app)
 
     // admin stuffs
     app.use((req, res, next) => {
