@@ -1,10 +1,21 @@
 export default class Queue {
     contents = [];
 
+    static #queue;
+
     constructor(config = {}) {
+        if (Queue.#queue) {
+            return this.getInstance();
+        }
         this.onAdd = config.onAdd;
         this.onRemove = config.onRemove;
         this.onChange = config.onChange;
+
+        Queue.#queue = this;
+    }
+
+    static getInstance() {
+        return Queue.#queue
     }
 
     add(user) {

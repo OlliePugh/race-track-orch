@@ -35,9 +35,10 @@ export default class User {
     }
 
     static getUser({ clientId, socketId }) {
+        // console.log(User.#users)
         if (clientId && socketId) throw new AssertionError("Please specify clientId OR socketId NOT both")
-        for (let i = 0; i < this.#users.length; i++) {
-            const user = this.#users[i];
+        for (let i = 0; i < User.#users.length; i++) {
+            const user = User.#users[i];
             if (user.clientId === clientId || user.socketId === socketId) {
                 return user
             }
@@ -47,10 +48,10 @@ export default class User {
     }
 
     static delete(user) {
-        for (let i = 0; i < this.#users.length; i++) {
-            const currUser = this.#users[i];
+        for (let i = 0; i < User.#users.length; i++) {
+            const currUser = User.#users[i];
             if (user.isSameUser(currUser)) {
-                this.#users.splice(i, 1)  // remove the one user
+                User.#users.splice(i, 1)  // remove the one user
                 return;
             }
         }

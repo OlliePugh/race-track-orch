@@ -12,6 +12,7 @@ import commonSockets from "./socket-events/common-sockets";
 import adminSockets, { updateAdminQueue } from "./socket-events/admin-sockets";
 import utils from "../consts"
 import cookie from "cookie"
+import GameController from "./game-controller";
 
 const privateKey = fs.readFileSync('keys/olliepugh_com.key', 'utf8');
 const certificate = fs.readFileSync('keys/olliepugh_com.crt', 'utf8');
@@ -24,7 +25,7 @@ routing(app);
 
 const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
-const io = new Server(httpsServer);
+const io = new Server(httpServer);
 const admins = [];
 
 const broadcastQueueUpdate = (queue) => {
@@ -40,8 +41,21 @@ const queue = new Queue({
     onRemove: user => {
         io.sockets.to(user.socketId).emit(SOCKET_EVENTS.LEFT_QUEUE)
     },
-    onChange: broadcastQueueUpdate
+    onChange: () => {
+        broadcastQueueUpdate(queue)
+
+        const carHandler = {
+            cars: ["bruh"]
+        }
+
+        if (queue.contents.length >= carHandler.cars.length) {
+            console.log("starting match")
+            gameController.startMatch(queue, carHandler);
+        }
+    }
 });
+
+const gameController = new GameController(io);
 
 const userSetup = (socket, queue) => {
     queueSockets(socket, queue);
@@ -62,7 +76,6 @@ const userSetup = (socket, queue) => {
             return;
         }
         queue.remove(user)  // I have a feeling this disconnected logic between users and queue is going to make my life hell
-        User.delete(user);
     })
 }
 
@@ -102,7 +115,7 @@ io.on(SOCKET_EVENTS.CONNECT, (socket) => {
 httpServer.listen(8080, () => {
     console.log("Started serving HTTP")
 });
-httpsServer.listen(8443, () => {
-    console.log("Started serving HTTPS")
-});
+// httpsServer.listen(8443, () => {
+//     console.log("Started serving HTTPS")
+// });
 

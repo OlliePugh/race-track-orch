@@ -1,4 +1,4 @@
-const socket = io.connect(window.location.origin, { secure: true });
+const socket = io.connect(window.location.origin, { secure: false });
 
 const SOCKET_EVENTS = {  // webpack was made for things like this
     CONNECT: "connect",
@@ -10,7 +10,8 @@ const SOCKET_EVENTS = {  // webpack was made for things like this
     QUEUE_UPDATE: "queue-update",
     JOINED_QUEUE: "joined-queue",
     LEFT_QUEUE: "left-queue",
-    QUEUE_STATUS_REQUEST: "queue-status-request"
+    QUEUE_STATUS_REQUEST: "queue-status-request",
+    REDIRECT: "redirect"
 }
 
 const CONSTS = {
@@ -43,6 +44,10 @@ socket.on(SOCKET_EVENTS.JOINED_QUEUE, () => {
 
 socket.on(SOCKET_EVENTS.LEFT_QUEUE, () => {
     toggleInQueueHud(false);
+})
+
+socket.on(SOCKET_EVENTS.REDIRECT, (data) => {
+    window.location.replace(data);
 })
 
 const joinQueue = () => {

@@ -10,5 +10,6 @@ export default {
     MISSING_COOKIE: "missing-cookie",
     DUPLICATE_TAB: "duplicate-tab",
     DISCONNECT: "disconnect",
-    ADMIN_USERNAME_QUEUE: "admin-username-queue"
+    ADMIN_USERNAME_QUEUE: "admin-username-queue",
+    REDIRECT: "redirect"
 }

@@ -6,6 +6,7 @@ import adminInfo from "../admin-details.js";
 import path from "path";
 import express from "express";
 import carSetup from "./car-handler"
+import GameController from './game-controller';
 
 export const adminKeys = [];
 
@@ -21,13 +22,15 @@ export default (app) => {
     })
 
     // setup routing
-    app.enable("trust proxy"); // enforce https
-    app.use((req, res, next) => {
-        req.secure ? next() : res.redirect("https://" + req.headers.host + req.url);
-    });
+    // app.enable("trust proxy"); // enforce https
+    // app.use((req, res, next) => {
+    //     req.secure ? next() : res.redirect("https://" + req.headers.host + req.url);
+    // });
 
     // expose view folder
     app.use(cookies())
+    app.set('view engine', 'pug')
+    app.set('views', path.join(__dirname, '../client/view'));
     app.use("/", express.static(path.join(__dirname, "../client/public")));
     app.get('/', function (req, res) {
         if (!(utils.CLIENT_COOKIE_KEY in req.cookies)) {
@@ -39,6 +42,23 @@ export default (app) => {
         res.sendFile(path.join(__dirname, "../client/view/queue/queue.html"));  // server the page
     });
     app.use("/queue", express.static(path.join(__dirname, "../client/view/queue/public")));
+    app.get("/play", (req, res) => {
+        let carId
+        try {
+            carId = GameController.getInstance().getCarId(req.cookies[utils.CLIENT_COOKIE_KEY])
+        }
+        catch {
+            res.status(403).send();  // user is not in a game therefore ignore them
+        }
+
+        if (carId == -1) {
+            res.status(403).send();
+        }
+
+        console.log(carId);
+        res.render('play/play', { title: 'Hey', message: 'Hello there!' })
+        res.status(200).send();
+    })
 
     // admin stuffs
     app.use((req, res, next) => {
