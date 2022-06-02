@@ -35,7 +35,6 @@ export default class User {
     }
 
     static getUser({ clientId, socketId }) {
-        // console.log(User.#users)
         if (clientId && socketId) throw new AssertionError("Please specify clientId OR socketId NOT both")
         for (let i = 0; i < User.#users.length; i++) {
             const user = User.#users[i];

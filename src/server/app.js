@@ -13,6 +13,7 @@ import adminSockets, { updateAdminQueue } from "./socket-events/admin-sockets";
 import utils from "../consts"
 import cookie from "cookie"
 import GameController from "./game-controller";
+import { cars } from "./car-handler";
 
 const privateKey = fs.readFileSync('keys/olliepugh_com.key', 'utf8');
 const certificate = fs.readFileSync('keys/olliepugh_com.crt', 'utf8');
@@ -25,7 +26,7 @@ routing(app);
 
 const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
-const io = new Server(httpServer);
+const io = new Server(httpsServer);
 const admins = [];
 
 const broadcastQueueUpdate = (queue) => {
@@ -43,14 +44,9 @@ const queue = new Queue({
     },
     onChange: () => {
         broadcastQueueUpdate(queue)
-
-        const carHandler = {
-            cars: ["bruh"]
-        }
-
-        if (queue.contents.length >= carHandler.cars.length) {
+        if (queue.contents.length >= cars.length && cars.length != 0) {
             console.log("starting match")
-            gameController.startMatch(queue, carHandler);
+            gameController.startMatch(queue, cars);
         }
     }
 });
@@ -115,7 +111,7 @@ io.on(SOCKET_EVENTS.CONNECT, (socket) => {
 httpServer.listen(8080, () => {
     console.log("Started serving HTTP")
 });
-// httpsServer.listen(8443, () => {
-//     console.log("Started serving HTTPS")
-// });
+httpsServer.listen(8443, () => {
+    console.log("Started serving HTTPS")
+});
 

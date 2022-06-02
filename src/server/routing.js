@@ -7,10 +7,20 @@ import path from "path";
 import express from "express";
 import carSetup from "./car-handler"
 import GameController from './game-controller';
+import carHistory from "../car-history.json"
+import axios from "axios"
 
 export const adminKeys = [];
 
 export default (app) => {
+    carHistory.forEach(car => {
+        axios.get(`http://${car}`).then(res => {
+            carSetup(app, car);
+        }).catch(() => {
+            // do nothing as the car is not online
+        })
+        // attempt get stream endpoint (should return 403)
+    })
 
     app.get("/car-handshake", (req, res) => {  // allow for http for this endpoint
         if (req.headers["api-key"] !== adminInfo.carApiKey) {
@@ -22,10 +32,10 @@ export default (app) => {
     })
 
     // setup routing
-    // app.enable("trust proxy"); // enforce https
-    // app.use((req, res, next) => {
-    //     req.secure ? next() : res.redirect("https://" + req.headers.host + req.url);
-    // });
+    app.enable("trust proxy"); // enforce https
+    app.use((req, res, next) => {
+        req.secure ? next() : res.redirect("https://" + req.headers.host + req.url);
+    });
 
     // expose view folder
     app.use(cookies())

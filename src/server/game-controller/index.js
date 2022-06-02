@@ -37,10 +37,10 @@ export default class GameController {
         throw new Error("not implemented");
     }
 
-    startMatch(queue, carHandler) {  // arrays of user objects, one for each player
+    startMatch(queue, cars) {  // arrays of user objects, one for each player
         const players = [];
 
-        carHandler.cars.forEach((car) => {
+        cars.forEach((car) => {
             const currPlayer = queue.get(0)
             players.push(currPlayer);  // add the player to the current match
             queue.remove(currPlayer);  // remove the player from the queue

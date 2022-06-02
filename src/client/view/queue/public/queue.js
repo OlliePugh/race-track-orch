@@ -1,4 +1,4 @@
-const socket = io.connect(window.location.origin, { secure: false });
+const socket = io.connect(window.location.origin, { secure: true });
 
 const SOCKET_EVENTS = {  // webpack was made for things like this
     CONNECT: "connect",
