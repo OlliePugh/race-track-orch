@@ -39,7 +39,7 @@ export default (app) => {
 
     // expose view folder
     app.use(cookies())
-    app.set('view engine', 'pug')
+    app.set('view engine', 'ejs');
     app.set('views', path.join(__dirname, '../client/view'));
     app.use("/", express.static(path.join(__dirname, "../client/public")));
     app.get('/', function (req, res) {

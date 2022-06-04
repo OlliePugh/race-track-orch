@@ -6,17 +6,28 @@ export default class User {
     static #users = [];
 
     constructor(socketId, clientId, username = "Anonymous") {
+        try {
+            userExists = User.getUser({ clientId }) // check if user exist with this clientId
+        }
+        catch { }
+
+        if (userExists) { // a user has already been created with this id
+            console.log("USER THAT HAS BEEN TRIED TO BE MADE")
+            console.log(userExists)
+            if (userExists.connected) {
+                throw new Error("Tab is already open with same client id")
+            }
+            else {
+                userExists.connected = true;
+                return userExists;
+            }
+        }
+
         this.socketId = socketId;
         this.clientId = clientId;
         this.username = username
+        this.connected = true;
         let userExists;
-        try {
-            userExists = User.getUser({ clientId })
-        }
-        catch { }
-        if (userExists !== undefined) {
-            throw new Error("Tab is already open with same client id")
-        }
 
         User.#users.push(this);
     }

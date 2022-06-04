@@ -58,7 +58,8 @@ const userSetup = (socket, queue) => {
     try {
         new User(socket.id, User.getClientIdFromSocket(socket))
     }
-    catch {
+    catch (e) {
+        console.error(e)
         socket.emit(SOCKET_EVENTS.DUPLICATE_TAB)
         return;
     }
@@ -67,8 +68,16 @@ const userSetup = (socket, queue) => {
         let user;
         try {
             user = User.getUser({ socketId: socket.id });
+            user.connected = false;
         }
         catch (e) {  // user does not exist therefore discard
+            try {
+                user = User.getUser({ clientId: User.getClientIdFromSocket(socket) });
+                user.connected = false;
+            }
+            catch {
+                return;
+            }
             return;
         }
         queue.remove(user)  // I have a feeling this disconnected logic between users and queue is going to make my life hell
