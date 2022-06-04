@@ -24,8 +24,7 @@ import url from "url";
 import http from "http";
 import events from "events";
 import util from "util";
-
-export const allowedClients = [];
+import GameController from "../game-controller";
 
 const extractBoundary = (contentType) => {
     contentType = contentType.replace(/\s+/g, '');

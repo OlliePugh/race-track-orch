@@ -1,12 +1,12 @@
-import { allowedClients } from "./mjpeg-proxy";
 import User from "../user";
 import { adminKeys } from "../routing";
 import utils from "../../consts"
 import Car from "../car"
+import GameController from "../game-controller";
 
 export const cars = [];
 
-export default (app, car) => {
+export default (app, car, gameController) => {
     if (!cars.includes(car)) {  // check if its a new car
         console.log(`Car with IP ${car} connected`)
         const newCar = new Car(car);
@@ -15,7 +15,8 @@ export default (app, car) => {
         app.get(`/stream${cars.indexOf(car)}`, (req, res) => {
             // is the user allowed to see this page?
             const clientId = User.getClientIdFromRequest(req)
-            if (!(allowedClients.includes(clientId) || adminKeys.includes(req.cookies[utils.ADMIN_COOKIE_KEY]))) {
+            const playerIsInMatch = GameController.getInstance().getCurrentMatch().filter(user => user.clientId === clientId).length > 0
+            if (!(playerIsInMatch || adminKeys.includes(req.cookies[utils.ADMIN_COOKIE_KEY]))) {
                 console.log("No permission to view video stream")
                 res.status(403).send();
                 return;

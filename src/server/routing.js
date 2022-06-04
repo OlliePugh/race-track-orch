@@ -64,9 +64,7 @@ export default (app) => {
         if (carId == -1) {
             res.status(403).send();
         }
-
-        console.log(carId);
-        res.render('play/play', { title: 'Hey', message: 'Hello there!' })
+        res.render('play/play', { carId })
         res.status(200).send();
     })
 

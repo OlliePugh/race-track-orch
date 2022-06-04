@@ -69,4 +69,8 @@ export default class GameController {
         const user = User.getUser({ clientId })
         return this.#currentMatch.indexOf(user)
     }
+
+    getCurrentMatch() {
+        return this.#currentMatch;
+    }
 }
