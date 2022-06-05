@@ -6,7 +6,7 @@ import GameController from "../game-controller";
 
 export const cars = [];
 
-export default (app, car, gameController) => {
+export default (app, car) => {
     if (!cars.includes(car)) {  // check if its a new car
         console.log(`Car with IP ${car} connected`)
         const newCar = new Car(car);

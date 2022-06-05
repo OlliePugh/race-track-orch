@@ -47,6 +47,7 @@ socket.on(SOCKET_EVENTS.LEFT_QUEUE, () => {
 })
 
 socket.on(SOCKET_EVENTS.REDIRECT, (data) => {
+    console.log(`Recvd redirect command to ${data}`)
     window.location.replace(data);
 })
 

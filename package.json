@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "nodemon --exec babel-node src/server/app.js",
     "build": "babel src -d dist --copy-files",
-    "start": "npm run build && node dist/server/app.js"
+    "start": "npm run build && node dist/server/app.js",
+    "debug": "nodemon --exec babel-node --inspect src/server/app.js"
   },
   "dependencies": {
     "axios": "^0.27.2",

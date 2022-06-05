@@ -49,20 +49,16 @@ export default class GameController {
             this.ioRef.to(currPlayer.socketId).emit(SOCKET_EVENTS.REDIRECT, "play")
             console.log(`sending redirect event to player ${currPlayer.username}`)
         })
-
         this.#currentMatch = players;
     }
 
     endMatch(winner) {
-        throw new Error("not implemented");
+        this.#currentMatch = [];  // reset the current match array
+        console.log("I NEED TO TRY TO START A NEW MATCH") //TODO this
     }
 
     isGameLive() {
-        return this.#currentMatch.length == 2
-    }
-
-    kickPlayer() {
-        throw new Error("not implemented");
+        return this.#currentMatch.length > 0
     }
 
     getCarId(clientId) {
@@ -72,5 +68,29 @@ export default class GameController {
 
     getCurrentMatch() {
         return this.#currentMatch;
+    }
+
+    isUserInGame(user) {
+        return this.#currentMatch.filter(currUser => currUser.clientId === user.clientId).length > 0  // is the user in the current match
+    }
+
+    kickPlayer(clientId) {  // kick the player and end the game if there is no one left playing 
+        let playerIndex = -1;
+        for (let i = 0; i < this.#currentMatch.length; i++) {
+            const player = this.#currentMatch[i];
+            if (player.clientId === clientId) {
+                playerIndex = i;
+                break;  // exit the loop
+            }
+        }
+
+        if (playerIndex === -1) {  // if the player has not been found exit early
+            return
+        }
+
+        this.#currentMatch[playerIndex] = null;  // set the player as undefined
+        if (this.#currentMatch.filter(user => user !== null).length === 0) {  // if all users in the match have disconnected
+            this.endMatch();
+        }
     }
 }

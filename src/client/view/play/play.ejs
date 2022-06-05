@@ -1,8 +1,11 @@
 <html>
   <head>
-    Play the game
+    <title>Go Racing!</title> 
+    <link rel="stylesheet" href="play.css">
   </head>
   <body>
-    <img src="/stream<%=carId%>">
+    <img id="video-stream" src="/stream<%=carId%>">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="play.js"></script>
   </body>
 </html>

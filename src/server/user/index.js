@@ -12,13 +12,12 @@ export default class User {
         catch { }
 
         if (userExists) { // a user has already been created with this id
-            console.log("USER THAT HAS BEEN TRIED TO BE MADE")
-            console.log(userExists)
             if (userExists.connected) {
                 throw new Error("Tab is already open with same client id")
             }
             else {
                 userExists.connected = true;
+                userExists.socketId = socketId;  // use this socket as the primary for this user now
                 return userExists;
             }
         }

@@ -10,6 +10,7 @@ import queueSockets from "./socket-events/queue-sockets";
 import routing, { adminKeys } from "./routing";
 import commonSockets from "./socket-events/common-sockets";
 import adminSockets, { updateAdminQueue } from "./socket-events/admin-sockets";
+import gameSockets from "./socket-events/game-sockets"
 import utils from "../consts"
 import cookie from "cookie"
 import GameController from "./game-controller";
@@ -44,7 +45,7 @@ const queue = new Queue({
     },
     onChange: () => {
         broadcastQueueUpdate(queue)
-        if (queue.contents.length >= cars.length && cars.length != 0) {
+        if (queue.contents.length >= cars.length && cars.length != 0 && !gameController.isGameLive()) {
             console.log("starting match")
             gameController.startMatch(queue, cars);
         }
@@ -54,15 +55,23 @@ const queue = new Queue({
 const gameController = new GameController(io);
 
 const userSetup = (socket, queue) => {
-    queueSockets(socket, queue);
+    let user
     try {
-        new User(socket.id, User.getClientIdFromSocket(socket))
+        user = new User(socket.id, User.getClientIdFromSocket(socket))
     }
     catch (e) {
         console.error(e)
         socket.emit(SOCKET_EVENTS.DUPLICATE_TAB)
         return;
     }
+
+    if (gameController.isUserInGame(user)) {
+        gameSockets(socket, gameController)
+    }
+    else {
+        queueSockets(socket, queue);
+    }
+
 
     socket.on(SOCKET_EVENTS.DISCONNECT, () => {
         let user;
