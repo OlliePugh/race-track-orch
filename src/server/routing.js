@@ -22,6 +22,10 @@ export default (app) => {
         // attempt get stream endpoint (should return 403)
     })
 
+    app.get("/favicon.ico", (req, res) => {  // allow for http for this endpoint
+        res.status(200).send();
+    })
+
     app.get("/car-handshake", (req, res) => {  // allow for http for this endpoint
         if (req.headers["api-key"] !== adminInfo.carApiKey) {
             res.status(403).send()
@@ -69,7 +73,7 @@ export default (app) => {
     })
 
     // admin stuffs
-    app.use((req, res, next) => {
+    app.use("/admin", (req, res, next) => {
         const auth = {
             login: adminInfo.username,
             password: adminInfo.password,

@@ -11,5 +11,7 @@ export default {
     DUPLICATE_TAB: "duplicate-tab",
     DISCONNECT: "disconnect",
     ADMIN_USERNAME_QUEUE: "admin-username-queue",
-    REDIRECT: "redirect"
+    REDIRECT: "redirect",
+    CONTROL_DOWN: "control_down",
+    CONTROL_UP: "control_up"
 }
