@@ -3,7 +3,7 @@ import User from "../user"
 
 export default class GameController {
     #currentMatch = [];
-    #controllerState = new Map();  // clientId -> controller State
+    #controllerState = {};  // clientId -> controller State
 
     static #gameController;
 
@@ -21,20 +21,21 @@ export default class GameController {
     }
 
     createControllerState(user) {
-        this.#controllerState.set(user.clientId, {
+        this.#controllerState[user.clientId] = {
             N: false,
             E: false,
             S: false,
             W: false,
-        })
+        }
     }
 
     resetControllerState() {
-        this.#controllerState = new Map();
+        this.#controllerState = {}
     }
 
-    controlCommand() {
-        throw new Error("not implemented");
+    controlCommand(clientId, direction, pressedDown) {
+        this.#controllerState[clientId][direction] = pressedDown
+        console.log(this.#controllerState[clientId])
     }
 
     startMatch(queue, cars) {  // arrays of user objects, one for each player

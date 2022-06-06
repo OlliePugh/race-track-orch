@@ -1,6 +1,6 @@
 import { AssertionError } from "assert"
 import cookie from "cookie"
-import utils from "../../consts.js"
+import consts from "../../consts"
 export default class User {
 
     static #users = [];
@@ -68,15 +68,15 @@ export default class User {
 
     static getClientIdFromSocket(socket) {
         const cookies = cookie.parse(socket.request.headers.cookie)
-        if (!cookies[utils.CLIENT_COOKIE_KEY]) {
+        if (!cookies[consts.CLIENT_COOKIE_KEY]) {
             socket.emit(SOCKET_EVENTS.MISSING_COOKIE)  // TODO this needs implementing
             return;
         }
-        return cookies[utils.CLIENT_COOKIE_KEY]
+        return cookies[consts.CLIENT_COOKIE_KEY]
     }
 
     static getClientIdFromRequest(req) {
-        const clientId = req.cookies[utils.CLIENT_COOKIE_KEY]
+        const clientId = req.cookies[consts.CLIENT_COOKIE_KEY]
         if (!clientId) {
             console.error("NO CLIENT ID FOUND - IMPLEMENT HANDLER") //TODO <--- this
         }

@@ -3,6 +3,7 @@ import fs from "fs";
 import http from "http"
 import https from "https"
 import { Server } from "socket.io"
+import cookie from "cookie"
 import Queue from "./queue";
 import User from "./user";
 import SOCKET_EVENTS from "../socket-events";
@@ -12,8 +13,8 @@ import commonSockets from "./socket-events/common-sockets";
 import adminSockets, { updateAdminQueue } from "./socket-events/admin-sockets";
 import gameSockets from "./socket-events/game-sockets"
 import utils from "../consts"
-import cookie from "cookie"
 import GameController from "./game-controller";
+import SerialHandler from "./serial-handler";
 import { cars } from "./car-handler";
 
 const privateKey = fs.readFileSync('keys/olliepugh_com.key', 'utf8');
@@ -53,6 +54,7 @@ const queue = new Queue({
 });
 
 const gameController = new GameController(io);
+const serialHandler = new SerialHandler(true);
 
 const userSetup = (socket, queue) => {
     let user

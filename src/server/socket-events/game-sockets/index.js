@@ -7,11 +7,14 @@ export default (socket, gameController) => {
         gameController.kickPlayer(User.getClientIdFromSocket(socket));
     })
 
-    socket.on(SOCKET_EVENTS.CONTROL_UP, (direction) => {
-        console.log(`${direction} released`)
+    socket.on(SOCKET_EVENTS.CONTROL_DOWN, (direction) => {
+        const clientId = User.getClientIdFromSocket(socket);
+        gameController.controlCommand(clientId, direction, true)
     })
 
-    socket.on(SOCKET_EVENTS.CONTROL_DOWN, (direction) => {
-        console.log(`${direction} pressed`)
+    socket.on(SOCKET_EVENTS.CONTROL_UP, (direction) => {
+        const clientId = User.getClientIdFromSocket(socket);
+        gameController.controlCommand(clientId, direction, false)
     })
+
 }
