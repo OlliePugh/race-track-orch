@@ -1,4 +1,4 @@
 export default {
     port: "COM6",
-    baudRate: 9600,
+    baudRate: 57600,
 }

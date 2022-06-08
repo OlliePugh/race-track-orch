@@ -3,15 +3,21 @@ import User from "../user"
 
 export default class GameController {
     #currentMatch = [];
-    #controllerState = {};  // clientId -> controller State
+    #controllerState = [];  // clientId -> controller State
+
+    lastControlDispatchTime = 0;
+    lastControlDispatchState;
+    retryTimeout;
 
     static #gameController;
+    static controlDispatchMinFreq = 25; // every 25 ms
 
-    constructor(ioRef) {
+    constructor(ioRef, serialHandler) {
         if (GameController.#gameController) {
             return this.getInstance();
         }
         this.ioRef = ioRef;
+        this.serialHandler = serialHandler;
 
         GameController.#gameController = this;
     }
@@ -20,22 +26,21 @@ export default class GameController {
         return GameController.#gameController;
     }
 
-    createControllerState(user) {
-        this.#controllerState[user.clientId] = {
-            N: false,
-            E: false,
-            S: false,
-            W: false,
+    resetControllerState() {
+        for (let i = 0; i < this.#controllerState.length; i++) {
+            this.#currentMatch[i] = {
+                N: false,
+                E: false,
+                S: false,
+                W: false
+            };
         }
     }
 
-    resetControllerState() {
-        this.#controllerState = {}
-    }
-
     controlCommand(clientId, direction, pressedDown) {
-        this.#controllerState[clientId][direction] = pressedDown
-        console.log(this.#controllerState[clientId])
+        const carId = this.getCarId(clientId);
+        this.#controllerState[carId][direction] = pressedDown
+        this.dispatchControlState();
     }
 
     startMatch(queue, cars) {  // arrays of user objects, one for each player
@@ -44,9 +49,14 @@ export default class GameController {
         cars.forEach((car) => {
             const currPlayer = queue.get(0)
             players.push(currPlayer);  // add the player to the current match
+            this.#controllerState.push({
+                N: false,
+                E: false,
+                S: false,
+                W: false
+            })
             queue.remove(currPlayer);  // remove the player from the queue
 
-            this.createControllerState(currPlayer, car);
             this.ioRef.to(currPlayer.socketId).emit(SOCKET_EVENTS.REDIRECT, "play")
             console.log(`sending redirect event to player ${currPlayer.username}`)
         })
@@ -54,6 +64,7 @@ export default class GameController {
     }
 
     endMatch(winner) {
+        this.resetControllerState();
         this.#currentMatch = [];  // reset the current match array
         console.log("I NEED TO TRY TO START A NEW MATCH") //TODO this
     }
@@ -94,4 +105,29 @@ export default class GameController {
             this.endMatch();
         }
     }
+
+    async dispatchControlState(force) {
+        this.lastControlDispatchState = this.#controllerState;
+        if (!force && Date.now() < this.lastControlDispatchTime + this.controlDispatchMinFreq) {
+            // has not been long enough since last send
+            if (!retryTimeout) {
+                retryTimeout = setTimeout(() => {
+                    dispatchControlState(this.lastControlDispatchState);
+                }, this.controlDispatchMinFreq - (Date.now() - this.lastControlDispatchTime));
+            }
+            return; // exit early
+        }
+        try {
+            clearTimeout(this.retryTimeout);
+            this.retryTimeout = null;
+            const toSend = JSON.stringify({
+                event: "controls",
+                data: this.#controllerState,
+            });
+            this.lastControlDispatchTime = Date.now();
+            await this.serialHandler.safeWrite(toSend);
+        } catch (e) {
+            console.error(`Error writing to serial device ${e}`);
+        }
+    };
 }

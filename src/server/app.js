@@ -53,8 +53,8 @@ const queue = new Queue({
     }
 });
 
-const gameController = new GameController(io);
 const serialHandler = new SerialHandler(true);
+const gameController = new GameController(io, serialHandler);
 
 const userSetup = (socket, queue) => {
     let user
@@ -128,10 +128,10 @@ io.on(SOCKET_EVENTS.CONNECT, (socket) => {
     }
 })
 
-httpServer.listen(8080, () => {
+httpServer.listen(80, () => {
     console.log("Started serving HTTP")
 });
-httpsServer.listen(8443, () => {
+httpsServer.listen(443, () => {
     console.log("Started serving HTTPS")
 });
 

@@ -2,7 +2,6 @@ import { ReadlineParser, SerialPort } from "serialport"
 import config from "../../config"
 
 export default class SerialHandler {
-
     static #serialHandler;
 
     port = config.port;
@@ -21,9 +20,11 @@ export default class SerialHandler {
 
     async safeWrite(message) {
         try {
-            await this.port.write(message)
+            console.log(`Sending Message ${message}`)
+            await this.serialPort.write(message)
         }
-        catch {
+        catch (e) {
+            console.error(e);
             console.log(`Failed to write message to ${this.port} - is it connected?`)
         }
     }
