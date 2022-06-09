@@ -64,6 +64,7 @@ const userSetup = (socket, queue) => {
         if (oldSocket !== undefined) {
             oldSocket.disconnect(0)
         }
+        queue.remove(user);
         User.delete(user);
         userSetup(socket, queue)  // recreate the user with the new details
     })
