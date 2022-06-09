@@ -13,5 +13,6 @@ export default {
     ADMIN_USERNAME_QUEUE: "admin-username-queue",
     REDIRECT: "redirect",
     CONTROL_DOWN: "control_down",
-    CONTROL_UP: "control_up"
+    CONTROL_UP: "control_up",
+    MAKE_MAIN_TAB: "make-main-tab"
 }

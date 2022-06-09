@@ -11,7 +11,8 @@ const SOCKET_EVENTS = {  // webpack was made for things like this
     JOINED_QUEUE: "joined-queue",
     LEFT_QUEUE: "left-queue",
     QUEUE_STATUS_REQUEST: "queue-status-request",
-    REDIRECT: "redirect"
+    REDIRECT: "redirect",
+    MAKE_MAIN_TAB: "make-main-tab"
 }
 
 const CONSTS = {
@@ -81,6 +82,7 @@ const toggleDuplicateTab = (state) => {
 
 const makeMainTab = () => {  // TODO THIS NEEDS FINISHING
     toggleDuplicateTab(false);
+    socket.emit(SOCKET_EVENTS.MAKE_MAIN_TAB);
 }
 
 const toggleInQueueHud = (state) => {

@@ -57,6 +57,17 @@ const serialHandler = new SerialHandler(true);
 const gameController = new GameController(io, serialHandler);
 
 const userSetup = (socket, queue) => {
+
+    socket.on(SOCKET_EVENTS.MAKE_MAIN_TAB, () => {
+        const user = User.getUser({ clientId: User.getClientIdFromSocket(socket) });  // get the user by client Id
+        const oldSocket = io.sockets.sockets.get(user.socketId);
+        if (oldSocket !== undefined) {
+            oldSocket.disconnect(0)
+        }
+        User.delete(user);
+        userSetup(socket, queue)  // recreate the user with the new details
+    })
+
     let user
     try {
         user = new User(socket.id, User.getClientIdFromSocket(socket))
