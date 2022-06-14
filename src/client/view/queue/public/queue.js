@@ -12,7 +12,8 @@ const SOCKET_EVENTS = {  // webpack was made for things like this
     LEFT_QUEUE: "left-queue",
     QUEUE_STATUS_REQUEST: "queue-status-request",
     REDIRECT: "redirect",
-    MAKE_MAIN_TAB: "make-main-tab"
+    MAKE_MAIN_TAB: "make-main-tab",
+    MESSAGE: "message"
 }
 
 const CONSTS = {
@@ -50,6 +51,11 @@ socket.on(SOCKET_EVENTS.LEFT_QUEUE, () => {
 socket.on(SOCKET_EVENTS.REDIRECT, (data) => {
     console.log(`Recvd redirect command to ${data}`)
     window.location.replace(data);
+})
+
+socket.on(SOCKET_EVENTS.MESSAGE, (message) => {
+    console.log("message")
+    document.getElementById("broadcast-message").innerText = message;
 })
 
 const joinQueue = () => {

@@ -9,4 +9,7 @@ export default (socket, queue) => {
     socket.on(SOCKET_EVENTS.QUEUE_STATUS_REQUEST, () => {
         updateAdminQueue(socket, queue);
     })
+    socket.on(SOCKET_EVENTS.BROADCAST_MESSAGE, (message) => {
+        socket.broadcast.emit(SOCKET_EVENTS.MESSAGE, message)
+    })
 }

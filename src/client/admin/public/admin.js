@@ -4,7 +4,8 @@ const SOCKET_EVENTS = {
     CONNECT: "connect",
     QUEUE_STATUS_REQUEST: "queue-status-request",
     ADMIN_USERNAME_QUEUE: "admin-username-queue",
-    DISCONNECT: "disconnect"
+    DISCONNECT: "disconnect",
+    BROADCAST_MESSAGE: "broadcast-message"
 }
 
 socket.on(SOCKET_EVENTS.CONNECT, () => {
@@ -26,4 +27,9 @@ const updateQueueTable = (queue) => {
         element.innerText = `${index + 1}: ${username}`
         queueList.appendChild(element)
     });
+}
+
+const broadcastMessage = () => {
+    const message = document.getElementById("broadcast-input").value
+    socket.emit(SOCKET_EVENTS.BROADCAST_MESSAGE, message)
 }

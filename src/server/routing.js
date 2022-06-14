@@ -9,6 +9,7 @@ import carSetup from "./car-handler"
 import GameController from './game-controller';
 import carHistory from "../car-history.json"
 import axios from "axios"
+import { cars } from "./car-handler"
 
 export const adminKeys = [];
 
@@ -90,7 +91,7 @@ export default (app) => {
     });
 
 
-    app.get('/admin', function (req, res) {
+    app.get('/admin', (req, res) => {
         if (!(utils.ADMIN_COOKIE_KEY in req.cookies) || !adminKeys.includes(req.cookies[utils.ADMIN_COOKIE_KEY])) {  // if cookie not set or if server does not recognise the cookie set a new one
             const newKey = uuidv4();
             adminKeys.push(newKey)
@@ -99,7 +100,7 @@ export default (app) => {
                 maxAge: 60 * 60 * 24 * 7 // 1 week
             }));
         }
-        res.sendFile(path.join(__dirname, "../client/admin/admin.html"));  // serve the page
+        res.render("admin/admin", { cars })
     });
     app.use("/admin", express.static(path.join(__dirname, "../client/admin/public")));
 }
