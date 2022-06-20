@@ -16,6 +16,7 @@ import utils from "../consts"
 import GameController from "./game-controller";
 import SerialHandler from "./serial-handler";
 import { cars } from "./car-handler";
+import adminDetails from "../admin-details";
 
 const privateKey = fs.readFileSync('keys/olliepugh_com.key', 'utf8');
 const certificate = fs.readFileSync('keys/olliepugh_com.crt', 'utf8');
@@ -29,7 +30,7 @@ routing(app);
 const httpServer = http.createServer(app);
 const httpsServer = https.createServer(credentials, app);
 const io = new Server(httpsServer);
-const admins = [];
+export const admins = [];
 
 const broadcastQueueUpdate = (queue) => {
     io.emit(SOCKET_EVENTS.QUEUE_UPDATE, { total: queue.contents.length });
@@ -46,10 +47,7 @@ const queue = new Queue({
     },
     onChange: () => {
         broadcastQueueUpdate(queue)
-        if (queue.contents.length >= cars.length && cars.length != 0 && !gameController.isGameLive()) {
-            console.log("starting match")
-            gameController.startMatch(queue, cars);
-        }
+        gameController.startMatchIfReady(queue, cars)
     }
 });
 
@@ -134,6 +132,9 @@ io.on(SOCKET_EVENTS.CONNECT, (socket) => {
             console.log("Admin socket creation attempt without valid key")
             socket.disconnect(0); // close the connection
         }
+    }
+    else if (socket.handshake.headers["streamkey"] == adminDetails.autoPilotKey) {
+        console.log("AUTO PILOT CONNECTED")
     }
     else {
         userSetup(socket, queue);

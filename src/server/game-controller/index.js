@@ -1,9 +1,12 @@
 import SOCKET_EVENTS from "../../socket-events"
 import User from "../user"
+import Queue from "../queue"
+import { cars } from "../car-handler";
+import { admins } from "../app";
 
 export default class GameController {
     #currentMatch = [];
-    #controllerState = [];  // clientId -> controller State
+    #controllerState = [];
 
     lastControlDispatchTime = 0;
     lastControlDispatchState;
@@ -26,6 +29,15 @@ export default class GameController {
         return GameController.#gameController;
     }
 
+    addControllerState() {
+        this.#controllerState.push({
+            N: false,
+            E: false,
+            S: false,
+            W: false
+        })
+    }
+
     resetControllerState() {
         for (let i = 0; i < this.#controllerState.length; i++) {
             this.#currentMatch[i] = {
@@ -34,6 +46,16 @@ export default class GameController {
                 S: false,
                 W: false
             };
+        }
+        this.dispatchControlState();  // stop the cars
+    }
+
+    disableUsersControls(index) {
+        this.#controllerState[index] = {
+            N: false,
+            E: false,
+            S: false,
+            W: false
         }
     }
 
@@ -49,24 +71,27 @@ export default class GameController {
         cars.forEach((car) => {
             const currPlayer = queue.get(0)
             players.push(currPlayer);  // add the player to the current match
-            this.#controllerState.push({
-                N: false,
-                E: false,
-                S: false,
-                W: false
-            })
             queue.remove(currPlayer);  // remove the player from the queue
 
             this.ioRef.to(currPlayer.socketId).emit(SOCKET_EVENTS.REDIRECT, "play")
             console.log(`sending redirect event to player ${currPlayer.username}`)
         })
         this.#currentMatch = players;
+        admins.forEach(admin => {
+            this.ioRef.to(admin).emit(SOCKET_EVENTS.ADMIN_USERNAME_PLAYERS, this.#currentMatch)
+        })  // send update to each admin
     }
 
     endMatch(winner) {
         this.resetControllerState();
         this.#currentMatch = [];  // reset the current match array
-        console.log("I NEED TO TRY TO START A NEW MATCH") //TODO this
+        this.startMatchIfReady(Queue.getInstance(), cars);
+    }
+
+    startMatchIfReady(queue, cars) {
+        if (queue.contents.length >= cars.length && cars.length != 0 && !this.isGameLive()) {
+            this.startMatch(queue, cars)
+        }
     }
 
     isGameLive() {
@@ -83,23 +108,23 @@ export default class GameController {
     }
 
     isUserInGame(user) {
-        return this.#currentMatch.filter(currUser => currUser.clientId === user.clientId).length > 0  // is the user in the current match
+        return this.#currentMatch.filter(currUser => currUser?.clientId === user.clientId).length > 0  // is the user in the current match
     }
 
     kickPlayer(clientId) {  // kick the player and end the game if there is no one left playing 
         let playerIndex = -1;
         for (let i = 0; i < this.#currentMatch.length; i++) {
             const player = this.#currentMatch[i];
-            if (player.clientId === clientId) {
+            if (player?.clientId === clientId) {
                 playerIndex = i;
                 break;  // exit the loop
             }
         }
-
         if (playerIndex === -1) {  // if the player has not been found exit early
             return
         }
-
+        this.ioRef.to(this.#currentMatch[playerIndex].socketId).emit(SOCKET_EVENTS.REDIRECT, "/")
+        this.disableUsersControls(playerIndex);
         this.#currentMatch[playerIndex] = null;  // set the player as undefined
         if (this.#currentMatch.filter(user => user !== null).length === 0) {  // if all users in the match have disconnected
             this.endMatch();

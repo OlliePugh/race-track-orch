@@ -5,7 +5,8 @@ const SOCKET_EVENTS = {
     DISCONENCT: "disconnect",
     MATCH_END: "match_end",
     CONTROL_DOWN: "control_down",
-    CONTROL_UP: "control_up"
+    CONTROL_UP: "control_up",
+    REDIRECT: "redirect"
 }
 
 const CONTROL_MAP = {
@@ -25,6 +26,11 @@ socket.on(SOCKET_EVENTS.CONNECT, () => {
 });
 
 socket.on(SOCKET_EVENTS.DISCONNECT, () => { alert("Lost connection to server! Please refresh") });
+
+socket.on(SOCKET_EVENTS.REDIRECT, (data) => {
+    console.log(`Recvd redirect command to ${data}`)
+    window.location.replace(data);
+})
 
 document.addEventListener("keydown", (event) => {
     if (!event.repeat) {

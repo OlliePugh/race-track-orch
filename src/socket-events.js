@@ -15,5 +15,7 @@ export default {
     CONTROL_DOWN: "control_down",
     CONTROL_UP: "control_up",
     MAKE_MAIN_TAB: "make-main-tab",
-    BROADCAST_MESSAGE: "broadcast-message"
+    BROADCAST_MESSAGE: "broadcast-message",
+    ADMIN_KICK_PLAYER: "admin-kick-player",
+    ADMIN_USERNAME_PLAYERS: "admin-username-players",
 }

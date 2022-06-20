@@ -20,7 +20,6 @@ export default class SerialHandler {
 
     async safeWrite(message) {
         try {
-            console.log(`Sending Message ${message}`)
             await this.serialPort.write(message)
         }
         catch (e) {
