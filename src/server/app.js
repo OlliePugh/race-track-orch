@@ -72,7 +72,6 @@ const userSetup = (socket, queue) => {
         user = new User(socket.id, User.getClientIdFromSocket(socket))
     }
     catch (e) {
-        console.error(e)
         socket.emit(SOCKET_EVENTS.DUPLICATE_TAB)
         return;
     }

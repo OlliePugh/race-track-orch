@@ -18,4 +18,5 @@ export default {
     BROADCAST_MESSAGE: "broadcast-message",
     ADMIN_KICK_PLAYER: "admin-kick-player",
     ADMIN_USERNAME_PLAYERS: "admin-username-players",
+    ADMIN_END_MATCH: "admin-end-match"
 }

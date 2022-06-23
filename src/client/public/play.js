@@ -49,6 +49,22 @@ document.addEventListener("keyup", (event) => {
     }
 });
 
+const setupMobileControls = () => {
+    ["N", "E", "S", "W"].forEach((direction) => {
+        const el = document.getElementById(`${direction}-canvas`);
+        el.addEventListener("touchstart", () => {
+            socket.emit(SOCKET_EVENTS.CONTROL_DOWN, direction);
+        });
+        el.addEventListener("touchend", () => {
+            socket.emit(SOCKET_EVENTS.CONTROL_UP, direction);
+        });
+    });
+};
+
+document.addEventListener("DOMContentLoaded", function (event) {
+    setupMobileControls();
+});
+
 // var initialOffset = null;
 // let lastRotated = false;
 // function handleOrientation(evt) {

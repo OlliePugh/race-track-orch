@@ -7,7 +7,8 @@ const SOCKET_EVENTS = {
     ADMIN_USERNAME_PLAYERS: "admin-username-players",
     DISCONNECT: "disconnect",
     BROADCAST_MESSAGE: "broadcast-message",
-    ADMIN_KICK_PLAYER: "admin-kick-player"
+    ADMIN_KICK_PLAYER: "admin-kick-player",
+    ADMIN_END_MATCH: "admin-end-match"
 }
 
 socket.on(SOCKET_EVENTS.CONNECT, () => {
@@ -59,4 +60,8 @@ const broadcastMessage = () => {
 const kickPlayer = (id) => {
     socket.emit(SOCKET_EVENTS.ADMIN_KICK_PLAYER, id)
     console.log(`kicking ${id}`)
+}
+
+const endRace = () => {
+    socket.emit(SOCKET_EVENTS.ADMIN_END_MATCH)
 }

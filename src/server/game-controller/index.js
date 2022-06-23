@@ -40,7 +40,7 @@ export default class GameController {
 
     resetControllerState() {
         for (let i = 0; i < this.#controllerState.length; i++) {
-            this.#currentMatch[i] = {
+            this.#controllerState[i] = {
                 N: false,
                 E: false,
                 S: false,
@@ -82,8 +82,13 @@ export default class GameController {
         })  // send update to each admin
     }
 
-    endMatch(winner) {
+    endMatch() {
         this.resetControllerState();
+        this.#currentMatch.forEach(player => {
+            if (player?.socketId != undefined) {
+                this.ioRef.to(player.socketId).emit(SOCKET_EVENTS.REDIRECT, "/?message=Race%20has%20ended")  // send the player back to the starting screen
+            }
+        })
         this.#currentMatch = [];  // reset the current match array
         this.startMatchIfReady(Queue.getInstance(), cars);
     }

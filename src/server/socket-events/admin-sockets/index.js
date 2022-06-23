@@ -17,4 +17,8 @@ export default (socket, queue) => {
         console.log("kicking player")
         GameController.getInstance().kickPlayer(id);
     })
+    socket.on(SOCKET_EVENTS.ADMIN_END_MATCH, () => {
+        console.log("Admin ending match")
+        GameController.getInstance().endMatch();
+    })
 }

@@ -18,11 +18,11 @@ export default (app, car) => {
             // is the user allowed to see this page?
             const clientId = User.getClientIdFromRequest(req)
             const playerIsInMatch = GameController.getInstance().getCurrentMatch().filter(user => user?.clientId === clientId).length > 0
-            if (!(playerIsInMatch || adminKeys.includes(req.cookies[utils.ADMIN_COOKIE_KEY]) || req.query[utils.AUTOPILOT_STREAM_KEY] == adminInfo.autoPilotKey)) {
-                console.log("No permission to view video stream")
-                res.status(403).send();
-                return;
-            }
+            // if (!(playerIsInMatch || adminKeys.includes(req.cookies[utils.ADMIN_COOKIE_KEY]) || req.query[utils.AUTOPILOT_STREAM_KEY] == adminInfo.autoPilotKey)) {
+            //     console.log("No permission to view video stream")
+            //     res.status(403).send();
+            //     return;
+            // }
             proxy.proxyRequest(req, res);
         });
     }

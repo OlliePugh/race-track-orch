@@ -30,9 +30,9 @@ export default class Queue {
     }
 
     remove(user) {
-        console.log(`Removing ${user.username} from queue`)
         const userPos = this.positionInQueue(user);
         if (userPos !== -1) {  // the user is in the queue
+            console.log(`Removing ${user.username} from queue`)
             this.contents.splice(userPos, 1)  // remove the one user
             if (this.onRemove) {
                 this.onRemove(user);

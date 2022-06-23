@@ -46,7 +46,6 @@ export default (app) => {
     app.use(cookies())
     app.set('view engine', 'ejs');
     app.set('views', path.join(__dirname, '../client/view'));
-    app.use("/", express.static(path.join(__dirname, "../client/public")));
     app.get('/', function (req, res) {
         if (!(utils.CLIENT_COOKIE_KEY in req.cookies)) {
             res.set('Set-Cookie', cookie.serialize(utils.CLIENT_COOKIE_KEY, uuidv4(), {
@@ -54,8 +53,9 @@ export default (app) => {
                 maxAge: 60 * 60 * 24 * 7 // 1 week
             }));
         }
-        res.sendFile(path.join(__dirname, "../client/view/queue/queue.html"));  // server the page
+        res.render('queue/queue', { message: req.query.message })
     });
+    app.use("/", express.static(path.join(__dirname, "../client/public")));
     app.use("/queue", express.static(path.join(__dirname, "../client/view/queue/public")));
     app.get("/play", (req, res) => {
         let carId
@@ -63,14 +63,15 @@ export default (app) => {
             carId = GameController.getInstance().getCarId(req.cookies[utils.CLIENT_COOKIE_KEY])
         }
         catch {
-            res.status(403).send();  // user is not in a game therefore ignore them
+            res.redirect("/")  // user is not in a game therefore ignore them
+            return;
         }
 
         if (carId == -1) {
-            res.status(403).send();
+            res.redirect("/")
+            return;
         }
         res.render('play/play', { carId })
-        res.status(200).send();
     })
 
     // admin stuffs

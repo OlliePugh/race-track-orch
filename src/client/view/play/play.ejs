@@ -5,6 +5,22 @@
   </head>
   <body>
     <img id="video-stream" src="/stream<%=carId%>">
+    <div class="touch-button no-select" style="bottom: 300px; left: 50px">
+      <h1 class="no-select">↑</h1>
+      <canvas id="N-canvas"></canvas>
+    </div>
+    <div class="touch-button no-select" style="bottom: 50px; left: 50px">
+      <h1 class="no-select">↓</h1>
+      <canvas id="S-canvas"></canvas>
+    </div>
+    <div class="touch-button no-select" style="bottom: 50px; right: 50px">
+      <h1 class="no-select">→</h1>
+      <canvas id="E-canvas"></canvas>
+    </div>
+    <div class="touch-button no-select" style="bottom: 50px; right: 300px">
+      <h1 class="no-select">←</h1>
+      <canvas id="W-canvas"></canvas>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="play.js"></script>
   </body>
