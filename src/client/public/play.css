@@ -50,6 +50,7 @@ h1 {
     .touch-button canvas {
       z-index: 100;
       position: absolute;
+      padding-bottom: 20%;
     }
   }
 

@@ -32,7 +32,7 @@ const httpsServer = https.createServer(credentials, app);
 const io = new Server(httpsServer);
 export const admins = [];
 
-const broadcastQueueUpdate = (queue) => {
+export const broadcastQueueUpdate = (queue) => {
     io.emit(SOCKET_EVENTS.QUEUE_UPDATE, { total: queue.contents.length });
     admins.forEach(admin => { updateAdminQueue(io.sockets.to(admin), queue) })  // send update to each admin
     queue.contents.forEach((user, index) => { io.sockets.to(user.socketId).emit(SOCKET_EVENTS.QUEUE_UPDATE, { current: index + 1, total: queue.contents.length }) })
@@ -47,6 +47,7 @@ const queue = new Queue({
     },
     onChange: () => {
         broadcastQueueUpdate(queue)
+        console.log("queue has changed so trying to start a match")
         gameController.startMatchIfReady(queue, cars)
     }
 });

@@ -59,7 +59,7 @@ export default class GameController {
         }
     }
 
-    controlCommand(clientId, direction, pressedDown) {
+    controlCommand(clientId, direction, pressedDown) { // TODO check if the user is actually controlling a car as it will crash the script
         const carId = this.getCarId(clientId);
         this.#controllerState[carId][direction] = pressedDown
         this.dispatchControlState();
@@ -71,12 +71,14 @@ export default class GameController {
         cars.forEach((car) => {
             const currPlayer = queue.get(0)
             players.push(currPlayer);  // add the player to the current match
-            queue.remove(currPlayer);  // remove the player from the queue
 
             this.ioRef.to(currPlayer.socketId).emit(SOCKET_EVENTS.REDIRECT, "play")
             console.log(`sending redirect event to player ${currPlayer.username}`)
         })
         this.#currentMatch = players;
+        this.#currentMatch.forEach(player => {
+            queue.remove(player);  // remove the player from the queue
+        })
         admins.forEach(admin => {
             this.ioRef.to(admin).emit(SOCKET_EVENTS.ADMIN_USERNAME_PLAYERS, this.#currentMatch)
         })  // send update to each admin
