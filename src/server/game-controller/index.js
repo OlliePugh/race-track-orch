@@ -68,8 +68,8 @@ export default class GameController {
     startMatch(queue, cars) {  // arrays of user objects, one for each player
         const players = [];
 
-        cars.forEach((car) => {
-            const currPlayer = queue.get(0)
+        cars.forEach((_, index) => {
+            const currPlayer = queue.get(index)
             players.push(currPlayer);  // add the player to the current match
 
             this.ioRef.to(currPlayer.socketId).emit(SOCKET_EVENTS.REDIRECT, "play")
