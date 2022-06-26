@@ -24,13 +24,12 @@ import url from "url";
 import http from "http";
 import events from "events";
 import util from "util";
-import GameController from "../game-controller";
 
-const extractBoundary = (contentType) => {
+const extractBoundary = contentType => {
     contentType = contentType.replace(/\s+/g, '');
 
-    var startIndex = contentType.indexOf('boundary=');
-    var endIndex = contentType.indexOf(';', startIndex);
+    let startIndex = contentType.indexOf('boundary=');
+    let endIndex = contentType.indexOf(';', startIndex);
     if (endIndex == -1) { //boundary is the last option
         // some servers, like mjpeg-streamer puts a '\r' character at the end of each line.
         if ((endIndex = contentType.indexOf('\r', startIndex)) == -1) {
@@ -43,57 +42,59 @@ const extractBoundary = (contentType) => {
 
 
 // MjpegProxy Module
-export default function MjpegProxy(mjpegUrl) {
-    events.EventEmitter.call(this);
+export default class MjpegProxy {
+    constructor(mjpegUrl) {
+        events.EventEmitter.call(this);
 
-    var self = this;
+        if (!mjpegUrl) throw new Error('Please provide a source MJPEG URL');
 
-    if (!mjpegUrl) throw new Error('Please provide a source MJPEG URL');
+        this.mjpegOptions = url.parse(mjpegUrl);
+        this.mjpegUrl = mjpegUrl;
 
-    self.mjpegOptions = url.parse(mjpegUrl);
+        this.audienceResponses = [];
+        this.newAudienceResponses = [];
 
-    self.audienceResponses = [];
-    self.newAudienceResponses = [];
+        this.boundary = null;
+        this.globalMjpegResponse = null;
+        this.mjpegRequest = null;
+    }
 
-    self.boundary = null;
-    self.globalMjpegResponse = null;
-    self.mjpegRequest = null;
 
-    self.proxyRequest = function (req, res) {
+    proxyRequest(req, res) {
         if (res.socket == null) {
             return;
         }
 
-        self.emit("streamstart", "[MjpegProxy] Started streaming " + mjpegUrl + " , users: " + (self.audienceResponses.length + 1));
+        this.emit("streamstart", "[MjpegProxy] Started streaming " + this.mjpegUrl + " , users: " + (this.audienceResponses.length + 1));
 
         // There is already another client consuming the MJPEG response
-        if (self.mjpegRequest !== null) {
+        if (this.mjpegRequest !== null) {
 
-            self._newClient(req, res);
+            this._newClient(req, res);
         } else {
             // Send source MJPEG request
-            self.mjpegRequest = http.request(self.mjpegOptions, function (mjpegResponse) {
+            this.mjpegRequest = http.request(this.mjpegOptions, mjpegResponse => {
                 // console.log('request');
-                self.globalMjpegResponse = mjpegResponse;
-                self.boundary = extractBoundary(mjpegResponse.headers['content-type']);
+                this.globalMjpegResponse = mjpegResponse;
+                this.boundary = extractBoundary(mjpegResponse.headers['content-type']);
 
-                self._newClient(req, res);
+                this._newClient(req, res);
 
-                var lastByte1 = null;
-                var lastByte2 = null;
+                let lastByte1 = null;
+                let lastByte2 = null;
 
-                mjpegResponse.on('data', function (chunk) {
+                mjpegResponse.on('data', chunk => {
                     // Fix CRLF issue on iOS 6+: boundary should be preceded by CRLF.
-                    var buff = Buffer.from(chunk);
+                    let buff = Buffer.from(chunk);
                     if (lastByte1 != null && lastByte2 != null) {
-                        var oldheader = '--' + self.boundary;
+                        let oldheader = '--' + this.boundary;
 
-                        var p = buff.indexOf(oldheader);
+                        let p = buff.indexOf(oldheader);
 
                         if (p == 0 && !(lastByte2 == 0x0d && lastByte1 == 0x0a) || p > 1 && !(chunk[p - 2] == 0x0d && chunk[p - 1] == 0x0a)) {
-                            var b1 = chunk.slice(0, p);
-                            var b2 = new Buffer('\r\n--' + self.boundary);
-                            var b3 = chunk.slice(p + oldheader.length);
+                            let b1 = chunk.slice(0, p);
+                            let b2 = new Buffer('\r\n--' + this.boundary);
+                            let b3 = chunk.slice(p + oldheader.length);
                             chunk = Buffer.concat([b1, b2, b3]);
                         }
                     }
@@ -101,66 +102,66 @@ export default function MjpegProxy(mjpegUrl) {
                     lastByte1 = chunk[chunk.length - 1];
                     lastByte2 = chunk[chunk.length - 2];
 
-                    for (var i = self.audienceResponses.length; i--;) {
-                        var res = self.audienceResponses[i];
+                    for (let i = this.audienceResponses.length; i--;) {
+                        let res = this.audienceResponses[i];
 
                         // First time we push data... lets start at a boundary
-                        if (self.newAudienceResponses.indexOf(res) >= 0) {
-                            var p = buff.indexOf('--' + self.boundary);
+                        if (this.newAudienceResponses.indexOf(res) >= 0) {
+                            let p = buff.indexOf('--' + this.boundary);
                             if (p >= 0) {
                                 res.write(chunk.slice(p));
-                                self.newAudienceResponses.splice(self.newAudienceResponses.indexOf(res), 1); // remove from new
+                                this.newAudienceResponses.splice(this.newAudienceResponses.indexOf(res), 1); // remove from new
                             }
                         } else {
                             res.write(chunk);
                         }
                     }
                 });
-                mjpegResponse.on('end', function () {
+                mjpegResponse.on('end', () => {
                     // console.log("...end");
-                    for (var i = self.audienceResponses.length; i--;) {
-                        var res = self.audienceResponses[i];
+                    for (let i = this.audienceResponses.length; i--;) {
+                        let res = this.audienceResponses[i];
                         res.end();
                     }
-                    self.emit("streamstop", "[MjpegProxy] 0 Users, Stopping stream " + mjpegUrl);
+                    this.emit("streamstop", "[MjpegProxy] 0 Users, Stopping stream " + this.mjpegUrl);
 
                 });
-                mjpegResponse.on('close', function () {
+                mjpegResponse.on('close', () => {
                     // console.log("...close");
                 });
             });
 
-            self.mjpegRequest.on('error', function (e) {
+            this.mjpegRequest.on('error', e => {
                 //console.error('problem with request: ', e);
-                self.emit("error", { msg: e, url: mjpegUrl });
+                this.emit("error", { msg: e, url: this.mjpegUrl });
             });
-            self.mjpegRequest.end();
+            this.mjpegRequest.end();
         }
     }
 
-    self._newClient = function (req, res) {
+    _newClient(req, res) {
         res.writeHead(200, {
             'Expires': 'Mon, 01 Jul 1980 00:00:00 GMT',
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache',
-            'Content-Type': 'multipart/x-mixed-replace;boundary=' + self.boundary
+            'Content-Type': 'multipart/x-mixed-replace;boundary=' + this.boundary
         });
 
-        self.audienceResponses.push(res);
-        self.newAudienceResponses.push(res);
+        this.audienceResponses.push(res);
+        this.newAudienceResponses.push(res);
 
-        res.socket.on('close', function () {
+        res.socket.on('close', () => {
             // console.log('exiting client!');
 
-            self.audienceResponses.splice(self.audienceResponses.indexOf(res), 1);
-            if (self.newAudienceResponses.indexOf(res) >= 0) {
-                self.newAudienceResponses.splice(self.newAudienceResponses.indexOf(res), 1); // remove from new
+            this.audienceResponses.splice(this.audienceResponses.indexOf(res), 1);
+            if (this.newAudienceResponses.indexOf(res) >= 0) {
+                this.newAudienceResponses.splice(this.newAudienceResponses.indexOf(res), 1); // remove from new
             }
 
-            if (self.audienceResponses.length == 0) {
-                self.mjpegRequest = null;
+            if (this.audienceResponses.length == 0) {
+                this.mjpegRequest = null;
                 try {
-                    self.globalMjpegResponse.destroy();
+                    this.globalMjpegResponse.destroy();
                 } catch (e) {
                     console.log(e);
                 }

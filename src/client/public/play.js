@@ -64,14 +64,14 @@ const setupMobileControls = () => {
     });
 };
 
-document.addEventListener("DOMContentLoaded", function (event) {
+document.addEventListener("DOMContentLoaded", (_) => {
     setupMobileControls();
 });
 
 var canvas = document.querySelector('canvas');
 fitToContainer(canvas);
 
-function fitToContainer(canvas) {
+const fitToContainer = canvas => {
     // Make it visually fill the positioned parent
     canvas.style.width = '100%';
     canvas.style.height = '100%';
@@ -79,48 +79,3 @@ function fitToContainer(canvas) {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 }
-
-// var initialOffset = null;
-// let lastRotated = false;
-// function handleOrientation(evt) {
-//     if (initialOffset === null && evt.absolute !== true
-//         && +evt.webkitCompassAccuracy > 0 && +evt.webkitCompassAccuracy < 50) {
-//         initialOffset = evt.webkitCompassHeading || 0;
-//     }
-
-//     var alpha = evt.alpha - initialOffset;
-//     if (alpha < 0) {
-//         alpha += 360;
-//     }
-
-//     if (alpha > 110) {
-//         if (!lastRotated) {
-//             console.log("turning left")
-//             socket.emit(SOCKET_EVENTS.CONTROL_DOWN, CONTROL_MAP.ArrowLeft);
-//             socket.emit(SOCKET_EVENTS.CONTROL_UP, CONTROL_MAP.ArrowRight);
-//             lastRotated = true;
-//         }
-//     }
-//     else if (alpha < 70) {
-//         if (!lastRotated) {
-//             console.log("turning right")
-//             socket.emit(SOCKET_EVENTS.CONTROL_DOWN, CONTROL_MAP.ArrowRight);
-//             socket.emit(SOCKET_EVENTS.CONTROL_UP, CONTROL_MAP.ArrowLeft);
-//             lastRotated = true;
-//         }
-//     }
-//     else if (lastRotated) {  // is no longer in a rotated state
-//         socket.emit(SOCKET_EVENTS.CONTROL_UP, CONTROL_MAP.ArrowRight);
-//         socket.emit(SOCKET_EVENTS.CONTROL_UP, CONTROL_MAP.ArrowLeft);
-//         lastRotated = false;
-//         console.log("stop rotating")
-//     }
-
-//     console.log(alpha);
-//     // Now u
-// }
-
-// if (window.DeviceOrientationEvent) {
-//     console.log("is working")
-//     window.addEventListener("deviceorientation", handleOrientation, false);
-// }

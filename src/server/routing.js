@@ -46,7 +46,7 @@ export default (app) => {
     app.use(cookies())
     app.set('view engine', 'ejs');
     app.set('views', path.join(__dirname, '../client/view'));
-    app.get('/', function (req, res) {
+    app.get('/', (req, res) => {
         if (!(utils.CLIENT_COOKIE_KEY in req.cookies)) {
             res.set('Set-Cookie', cookie.serialize(utils.CLIENT_COOKIE_KEY, uuidv4(), {
                 httpOnly: false,  // allow to be accessed from a script
