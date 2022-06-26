@@ -8,7 +8,8 @@ const SOCKET_EVENTS = {
     DISCONNECT: "disconnect",
     BROADCAST_MESSAGE: "broadcast-message",
     ADMIN_KICK_PLAYER: "admin-kick-player",
-    ADMIN_END_MATCH: "admin-end-match"
+    ADMIN_END_MATCH: "admin-end-match",
+    ADMIN_CLOSE_QUEUE: "admin-close-queue"
 }
 
 socket.on(SOCKET_EVENTS.CONNECT, () => {
@@ -64,4 +65,8 @@ const kickPlayer = (id) => {
 
 const endRace = () => {
     socket.emit(SOCKET_EVENTS.ADMIN_END_MATCH)
+}
+
+const closeQueue = () => {
+    socket.emit(SOCKET_EVENTS.ADMIN_CLOSE_QUEUE)
 }

@@ -21,4 +21,7 @@ export default (socket, queue) => {
         console.log("Admin ending match")
         GameController.getInstance().endMatch();
     })
+    socket.on(SOCKET_EVENTS.ADMIN_CLOSE_QUEUE, () => {
+        queue.close();
+    })
 }

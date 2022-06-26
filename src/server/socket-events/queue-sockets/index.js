@@ -15,6 +15,10 @@ export default (socket, queue) => {
 
         const positionInQueue = queue.positionInQueue(user)
         if (positionInQueue === -1) {  // if the user is not in the queue
+            if (queue.closed) {
+                socket.emit(SOCKET_EVENTS.MESSAGE, "Queue is closed!")
+                return;
+            }
             queue.add(user)
         }
         // if the user is already in the queue legit just ignore the request

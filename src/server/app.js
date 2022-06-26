@@ -47,7 +47,6 @@ const queue = new Queue({
     },
     onChange: () => {
         broadcastQueueUpdate(queue)
-        console.log("queue has changed so trying to start a match")
         gameController.startMatchIfReady(queue, cars)
     }
 });

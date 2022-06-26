@@ -1,5 +1,6 @@
 export default class Queue {
     contents = [];
+    closed = false;
 
     static #queue;
 
@@ -19,13 +20,15 @@ export default class Queue {
     }
 
     add(user) {
-        if (this.positionInQueue(user) === -1) {
-            console.log(`Adding ${user.username} to queue`)
-            this.contents.push(user)
-            if (this.onAdd) {
-                this.onAdd(user);
+        if (!this.closed) {
+            if (this.positionInQueue(user) === -1) {
+                console.log(`Adding ${user.username} to queue`)
+                this.contents.push(user)
+                if (this.onAdd) {
+                    this.onAdd(user);
+                }
+                this.#changeCallback();
             }
-            this.#changeCallback();
         }
     }
 
@@ -56,10 +59,13 @@ export default class Queue {
         return this.contents[index]
     }
 
+    close() {
+        this.closed = true;
+    }
+
     #changeCallback() {
         if (this.onChange) {
             this.onChange(this);
         }
     }
-
 }

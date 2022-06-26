@@ -1,4 +1,4 @@
-# Race Car Orch
+# race-car-orch
 
 This is an express server responsible for orchestrating communication between clients and the cars controller themselves. It also proxies the cars video feed to the clients
 

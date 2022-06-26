@@ -59,8 +59,11 @@ export default class GameController {
         }
     }
 
-    controlCommand(clientId, direction, pressedDown) { // TODO check if the user is actually controlling a car as it will crash the script
+    controlCommand(clientId, direction, pressedDown) {
         const carId = this.getCarId(clientId);
+        if (carId === -1) {
+            return  // user is not in the game
+        }
         this.#controllerState[carId][direction] = pressedDown
         this.dispatchControlState();
     }
